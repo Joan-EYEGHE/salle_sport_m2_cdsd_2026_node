@@ -7,3 +7,5 @@ export const sequelize = new Sequelize(env.db.name, env.db.user, env.db.pass, {
     dialect: 'mysql',
     logging: false
 })
+
+

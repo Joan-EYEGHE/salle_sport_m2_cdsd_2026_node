@@ -1,31 +1,16 @@
-import { CreationOptional, DataTypes, InferAttributes, Model, Optional, Sequelize } from "sequelize";
+import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Optional, Sequelize } from "sequelize";
 import { Role as UserRole } from "../utils/interfaces";
 
-export interface UserAttributes { // attributes for table in the database
-    id: number;
-    fullName: string;
-    email: string;
-    passwordHash: string;
-    role: UserRole;
-    isActive: boolean;
-    createdAt?: Date;
-    updatedAt?: Date;
-    firstConnection: boolean;
-}
 
-export type UserCreationAttributes = Optional<UserAttributes, 'id' | 'role' | 'isActive'>
-
-export class User
-    extends Model<InferAttributes<User>, UserCreationAttributes>
-    implements UserAttributes {
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>>{
     declare id: CreationOptional<number>;
     declare fullName: string;
     declare email: string;
     declare passwordHash: string;
     declare role: UserRole;
     declare isActive: boolean;
-    declare readonly createdAt?: Date;
-    declare readonly updatedAt?: Date;
+    declare readonly createdAt?: CreationOptional<Date>;
+    declare readonly updatedAt?: CreationOptional<Date>;
     declare firstConnection: boolean;
 }
 
@@ -34,7 +19,38 @@ export const initUserModel = (sequelize: Sequelize) => {
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,
-            primaryKey: false
-        }
+            primaryKey: true
+        },
+        fullName:{
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        email:{
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true,
+        },
+        passwordHash:{
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        role:{
+            type: DataTypes.ENUM("ADMIN" , "CASHIER" , "CONTROLLER"),
+            allowNull:false,
+            defaultValue: 'CASHIER'
+        },
+        isActive:{
+            type: DataTypes.BOOLEAN,
+            allowNull:false,
+            defaultValue: true,
+        },
+        firstConnection:{
+            type: DataTypes.BOOLEAN,
+            defaultValue: true,
+        },
+    },{
+        sequelize,
+        tableName: 'users',
+        timestamps: true,
     })
 }
