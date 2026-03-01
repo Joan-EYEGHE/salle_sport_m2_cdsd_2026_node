@@ -17,7 +17,7 @@ export const UserController = {
         }
 
     },
-    findOneById(req: AuthenticatedRequest, res: Response) {
+    findOneById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         const user = req.user;
         res.status(200).json({
             user
@@ -32,7 +32,17 @@ export const UserController = {
     //         data: userTickets
     //     })
     // },
-    create() { },
+    async create(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+        try {
+            const user = await UserService.create(req.body);
+            res.status(201).json({
+                success: true,
+                data: user
+            })
+        } catch (error) {
+            next(error);
+        }
+    },
     stats() { },
     update() { },
     changePassword() { },

@@ -7,3 +7,10 @@ export const hashPassword = async (plainPassword:string) : Promise<string> => {
 
 
 export const comparePassword = (plainPassword: string, hashPassword: string): Promise<boolean> => bcrypt.compare(plainPassword,hashPassword)
+
+
+export const validatePassword = (password: string) => {
+    if(!password || password.length < 6){
+        throw Object.assign(new Error('Password must be at least 6 characers!'), { status: 400 })
+    }
+}

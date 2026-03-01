@@ -34,6 +34,11 @@ router.param("id", (req: AuthenticatedRequest, res: Response, next: NextFunction
 // router.get('/', testMiddleware, UserController.list);
 router.get('/', UserController.list);
 /**
+ * POST /api/users
+ * Create a user
+ */
+router.post('/', UserController.create);
+/**
  * GET /api/users/:id
  * get one user by id
  */
