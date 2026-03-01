@@ -1,6 +1,5 @@
 import { hashPassword, validatePassword } from './../utils/password';
 import { User } from "../models";
-import { users } from '../data/user.data';
 import { Op } from 'sequelize';
 
 type ListQuery = {
@@ -55,9 +54,6 @@ export const UserService = {
             limit,
             totalPages: Math.ceil(count / limit)
         };
-    },
-    findById(userId: number) {
-        return users.find(u => u.id === userId);
     },
 
     async create(input: CreateUserInput) {

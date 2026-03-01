@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../utils/jwt";
 import { UserService } from "../services/user.service";
 import { AuthenticatedRequest } from "../utils/interfaces";
+import { User } from "../models";
 
 
-export const authMiddleware = (
+export const authMiddleware = async (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction
@@ -19,7 +20,7 @@ export const authMiddleware = (
         //verify if the token valid
         const decoded = verifyToken(token);
         //find the user with credentials
-        const user = UserService.findById(decoded.id);
+        const user = await User.findByPk(decoded.id);
         if (!user || !user.isActive) {
             return res.status(401).json({ success: false, message: 'Unauthorized' })
         }
@@ -28,7 +29,7 @@ export const authMiddleware = (
             id: user.id,
             email: user.email,
             role: user.role,
-            fullname: user.fullname
+            fullname: user.fullName
         };
         next()
 
