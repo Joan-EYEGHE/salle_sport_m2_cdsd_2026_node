@@ -1,6 +1,7 @@
 import app from "./app";
 import { env } from "./config/env";
 import { sequelize } from "./models";
+import { UserService } from "./services/user.service";
 sequelize
 
 
@@ -9,6 +10,8 @@ const start = async() => {
         await sequelize.authenticate();
         console.log("Database connected");
         await sequelize.sync();
+        //
+        await UserService.seedUsers();
         app.listen(env.port, () => {
             console.log(`Server running on port :${env.port}`)
         })

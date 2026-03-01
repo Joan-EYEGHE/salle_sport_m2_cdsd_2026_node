@@ -6,7 +6,7 @@ import { AuthenticatedRequest } from "../utils/interfaces";
 export const UserController = {
     list(req: Request, res: Response) {
 
-        const users = UserService.getAll()
+        const users = UserService.list()
         res.json({
             success: true,
             data: users
