@@ -1,11 +1,14 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
-import { TicketStatus } from "../utils/interfaces";
+
+export type TicketStatus = 'DISPONIBLE' | 'VENDU' | 'UTILISE' | 'EXPIRE';
 
 export class Ticket extends Model<InferAttributes<Ticket>, InferCreationAttributes<Ticket>> {
     declare id: CreationOptional<number>;
     declare id_batch: number;
     declare qr_code: CreationOptional<string>;
+    declare code_ticket: string;
     declare status: CreationOptional<TicketStatus>;
+    declare date_expiration: Date;
     declare prix_unitaire: number;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
@@ -29,10 +32,19 @@ export const initTicketModel = (sequelize: Sequelize) => {
             unique: true,
             defaultValue: DataTypes.UUIDV4,
         },
-        status: {
-            type: DataTypes.ENUM('VALID', 'USED', 'EXPIRED'),
+        code_ticket: {
+            type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: 'VALID',
+            unique: true,
+        },
+        status: {
+            type: DataTypes.ENUM('DISPONIBLE', 'VENDU', 'UTILISE', 'EXPIRE'),
+            allowNull: false,
+            defaultValue: 'DISPONIBLE',
+        },
+        date_expiration: {
+            type: DataTypes.DATE,
+            allowNull: false,
         },
         prix_unitaire: {
             type: DataTypes.DECIMAL(10, 2),

@@ -1,32 +1,36 @@
-import { Ticket } from "../utils/interfaces";
+import { Op, Transaction as SequelizeTransaction, WhereOptions } from "sequelize";
+import { Activity, Batch, Ticket } from "../models";
 
-export const tickets: Ticket[] = [
-    {
-        id: 1,
-        qrCode: 390848298470,
-        status: "VALID",
-        price: 1000,
-        userId: 2
+export const TicketData = {
+    findAll(filters: { status?: string; batch_id?: number } = {}) {
+        const where: WhereOptions = {};
+        if (filters.status) (where as any).status = filters.status;
+        if (filters.batch_id) (where as any).id_batch = filters.batch_id;
+        return Ticket.findAll({
+            where,
+            include: [{ model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] }],
+            order: [['createdAt', 'DESC']],
+        });
     },
-    {
-        id: 2,
-        qrCode: "987676343433",
-        status: "USED",
-        price: 1000,
-        userId: 1
+
+    findByPk(id: number) {
+        return Ticket.findByPk(id, {
+            include: [{ model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] }],
+        });
     },
-    {
-        id: 3,
-        qrCode: "822227383939",
-        status: "EXPIRED",
-        price: 1000,
-        userId: 2
+
+    findByCode(code: string) {
+        return Ticket.findOne({
+            where: {
+                [Op.or]: [
+                    { qr_code: code },
+                    { code_ticket: code },
+                ],
+            },
+        });
     },
-    {
-        id: 4,
-        qrCode: "748873872929",
-        status: "EXPIRED",
-        price: 1000,
-        userId: 2
-    }
-];
+
+    update(id: number, values: Partial<Ticket['_creationAttributes']>, t?: SequelizeTransaction) {
+        return Ticket.update(values as any, { where: { id }, transaction: t });
+    },
+};

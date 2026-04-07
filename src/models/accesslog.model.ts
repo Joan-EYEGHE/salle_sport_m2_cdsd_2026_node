@@ -4,7 +4,7 @@ export type ResultatScan = 'SUCCES' | 'ECHEC';
 
 export class AccessLog extends Model<InferAttributes<AccessLog>, InferCreationAttributes<AccessLog>> {
     declare id: CreationOptional<number>;
-    declare id_ticket: number;
+    declare id_ticket: CreationOptional<number | null>;
     declare date_scan: CreationOptional<Date>;
     declare resultat: ResultatScan;
     declare id_controller: number;
@@ -21,7 +21,7 @@ export const initAccessLogModel = (sequelize: Sequelize) => {
         },
         id_ticket: {
             type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false,
+            allowNull: true,
         },
         date_scan: {
             type: DataTypes.DATE,

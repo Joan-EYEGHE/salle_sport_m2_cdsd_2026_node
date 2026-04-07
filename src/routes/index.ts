@@ -5,6 +5,8 @@ import ticketRoutes from "./ticket.routes";
 import activityRoutes from "./activity.routes";
 import memberRoutes from "./member.routes";
 import transactionRoutes from "./transaction.routes";
+import batchRoutes from "./batch.routes";
+import accessLogRoutes from "./accesslog.routes";
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.use('/tickets',      ticketRoutes);
 router.use('/activities',   activityRoutes);
 router.use('/members',      memberRoutes);
 router.use('/transactions', transactionRoutes);
+router.use('/batches',      batchRoutes);
+router.use('/access-logs',  accessLogRoutes);
 
 export default router;
