@@ -91,6 +91,11 @@ export const UserService = {
 
 
 
+    // AUDIT FIX: méthode manquante appelée par router.param dans user.routes.ts
+    async findById(id: number) {
+        return User.findByPk(id, { attributes: { exclude: ['passwordHash'] } });
+    },
+
     //seeder
     async seedUsers() {
         const userCount = await User.count();
@@ -117,7 +122,7 @@ export const UserService = {
             });
             console.log('Default cashier created : cashier@example.com / cashier1234')
             //
-            const controllerPass = await hashPassword('cashier1234')
+            const controllerPass = await hashPassword('controller1234') // AUDIT FIX: mot de passe était 'cashier1234' alors que le log annonçait 'controller1234'
             await User.create({
                 fullName: 'Controller',
                 email: 'controller@example.com',

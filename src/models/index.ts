@@ -38,6 +38,10 @@ Transaction.belongsTo(Member, { foreignKey: 'id_membre' });
 User.hasMany(AccessLog, { foreignKey: 'id_controller' });
 AccessLog.belongsTo(User, { foreignKey: 'id_controller' });
 
+// AUDIT FIX: association manquante, accesslog.data.ts l'utilise dans include
+Ticket.hasMany(AccessLog, { foreignKey: 'id_ticket' });
+AccessLog.belongsTo(Ticket, { foreignKey: 'id_ticket' });
+
 // --- Exports ---
 
 export {

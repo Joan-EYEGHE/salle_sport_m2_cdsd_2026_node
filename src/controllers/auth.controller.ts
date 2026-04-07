@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
+import { AuthenticatedRequest } from "../utils/interfaces";
 
 export const AuthController = {
     async login(req: Request, res: Response, next: NextFunction) {
@@ -12,7 +13,14 @@ export const AuthController = {
             next(error)
         }
     },
-    logout(req: Request, res: Response, next: NextFunction) { },
-    refresh(req: Request, res: Response, next: NextFunction) { },
-    me(req: Request, res: Response, next: NextFunction) { },
+    // AUDIT FIX: stubs vides → requêtes bloquées indéfiniment
+    logout(req: Request, res: Response, next: NextFunction) {
+        res.json({ success: true, message: 'Logged out' });
+    },
+    refresh(req: Request, res: Response, next: NextFunction) {
+        res.status(501).json({ success: false, message: 'Not implemented' });
+    },
+    me(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+        res.json({ success: true, data: req.user ?? null });
+    },
 }

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { UserController } from "../controllers/user.controller";
-import { TicketController } from "../controllers/ticket.controller";
-import TicketsRouter from "./ticket.routes";
+import TicketsRouter from "./ticket.routes"; // AUDIT FIX: import TicketController inutilisé supprimé
 import { UserService } from "../services/user.service";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { requireRole } from "../middlewares/role.middleware";
@@ -11,20 +10,16 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.param("id", (req: AuthenticatedRequest, res: Response, next: NextFunction, id: number) => {
+// AUDIT FIX: passage en async + await findById (était synchrone, méthode inexistante)
+router.param("id", async (req: AuthenticatedRequest, res: Response, next: NextFunction, id: any) => {
     const userId = Number(id);
     if (Number.isNaN(userId)) {
-        return res.status(400).json({
-            error: "id must be a number!"
-        });
+        return res.status(400).json({ error: "id must be a number!" });
     }
-    const user = UserService.findById(userId)
-    if (!user) return res.status(400).json({
-        error: "user not found"
-    });
-    //inject a data into the request
-    req.user = user
-    next()
+    const user = await UserService.findById(userId);
+    if (!user) return res.status(400).json({ error: "user not found" });
+    req.user = user as any;
+    next();
 })
 
 /**

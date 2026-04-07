@@ -2,7 +2,7 @@ import app from "./app";
 import { env } from "./config/env";
 import { sequelize } from "./models";
 import { UserService } from "./services/user.service";
-sequelize
+// AUDIT FIX: ligne orpheline `sequelize` supprimée (no-op, résidu de copier-coller)
 
 
 const start = async() => {

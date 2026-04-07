@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { UserService } from "../services/user.service";
-import { TicketService } from "../services/ticket.service";
+// AUDIT FIX: import TicketService inutilisé supprimé
 import { AuthenticatedRequest } from "../utils/interfaces";
 
 export const UserController = {
