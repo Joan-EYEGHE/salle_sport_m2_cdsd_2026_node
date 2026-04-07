@@ -1,0 +1,142 @@
+import { Activity, Member, sequelize, Subscription, Transaction } from "../models";
+import { MemberData } from "../data/member.data";
+import { TransactionData } from "../data/transaction.data";
+import { TypeForfait } from "../models/subscription.model";
+
+const FORFAIT_DAYS: Record<TypeForfait, number> = {
+    HEBDO:       7,
+    MENSUEL:     30,
+    TRIMESTRIEL: 90,
+    ANNUEL:      365,
+};
+
+const FORFAIT_PRIX_FIELD: Record<TypeForfait, keyof Activity> = {
+    HEBDO:       'prix_hebdomadaire',
+    MENSUEL:     'prix_mensuel',
+    TRIMESTRIEL: 'prix_trimestriel',
+    ANNUEL:      'prix_annuel',
+};
+
+function addDays(dateStr: string, days: number): string {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    d.setDate(d.getDate() + days);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+}
+
+export const MemberService = {
+    async list() {
+        return MemberData.findAll();
+    },
+
+    async getById(id: number) {
+        const member = await MemberData.findByPk(id);
+        if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
+        return member;
+    },
+
+    async findByQr(uuid: string) {
+        const member = await MemberData.findByQr(uuid);
+        if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
+        return member;
+    },
+
+    async update(id: number, input: any) {
+        const member = await MemberData.findByPk(id);
+        if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
+
+        const allowed = ['nom', 'prenom', 'email', 'phone', 'date_naissance', 'adresse'];
+        const values: any = {};
+        for (const key of allowed) {
+            if (input[key] !== undefined) values[key] = input[key];
+        }
+
+        if (values.email) {
+            const existing = await Member.findOne({ where: { email: values.email } });
+            if (existing && existing.id !== id) {
+                throw Object.assign(new Error('Email déjà utilisé'), { status: 409 });
+            }
+        }
+
+        await MemberData.update(id, values);
+        return MemberData.findByPk(id);
+    },
+
+    async subscribe(body: {
+        membre: { nom: string; prenom: string; email?: string; phone?: string; date_naissance?: string; adresse?: string };
+        abonnement: {
+            id_activity: number;
+            type_forfait: TypeForfait;
+            frais_inscription_payes?: number;
+            frais_uniquement?: boolean;
+            date_debut: string;
+            montant_override?: number;
+        };
+    }) {
+        const { membre: membreInput, abonnement } = body;
+
+        if (!membreInput.nom?.trim()) throw Object.assign(new Error('Le nom est requis'), { status: 400 });
+        if (!membreInput.prenom?.trim()) throw Object.assign(new Error('Le prénom est requis'), { status: 400 });
+        if (!abonnement.date_debut) throw Object.assign(new Error('La date de début est requise'), { status: 400 });
+        if (!abonnement.type_forfait) throw Object.assign(new Error('Le type de forfait est requis'), { status: 400 });
+
+        const result = await sequelize.transaction(async (t) => {
+            const member = await MemberData.create({
+                nom: membreInput.nom.trim(),
+                prenom: membreInput.prenom.trim(),
+                email: membreInput.email ?? null,
+                phone: membreInput.phone ?? null,
+                date_naissance: membreInput.date_naissance ?? null,
+                adresse: membreInput.adresse ?? null,
+            }, t);
+
+            const activity = await Activity.findByPk(abonnement.id_activity, {
+                transaction: t,
+                lock: t.LOCK.UPDATE,
+            });
+            if (!activity) throw Object.assign(new Error('Activité introuvable'), { status: 404 });
+            if (!activity.status) throw Object.assign(new Error('Activité inactive'), { status: 400 });
+
+            const fraisInscription = Number(abonnement.frais_inscription_payes ?? 0);
+            let montant_total: number;
+
+            if (abonnement.montant_override != null && abonnement.montant_override !== undefined) {
+                montant_total = Number(abonnement.montant_override);
+            } else if (abonnement.frais_uniquement) {
+                montant_total = fraisInscription;
+            } else {
+                const priceField = FORFAIT_PRIX_FIELD[abonnement.type_forfait];
+                const prixForfait = parseFloat(activity[priceField] as any) || 0;
+                montant_total = prixForfait + fraisInscription;
+            }
+
+            const date_prochain_paiement = addDays(abonnement.date_debut, FORFAIT_DAYS[abonnement.type_forfait]);
+
+            await Subscription.create({
+                id_membre: member.id!,
+                id_activity: abonnement.id_activity,
+                type_forfait: abonnement.type_forfait,
+                frais_inscription_payes: fraisInscription,
+                frais_uniquement: abonnement.frais_uniquement ?? false,
+                montant_total,
+                date_debut: abonnement.date_debut,
+                date_prochain_paiement,
+            }, { transaction: t });
+
+            await TransactionData.create({
+                type: 'REVENU',
+                libelle: `Inscription ${member.nom} ${member.prenom} - ${activity.nom}`,
+                montant: montant_total,
+                id_membre: member.id!,
+                date: new Date(),
+            }, t);
+
+            return MemberData.reloadWithSubscription(member.id!, t);
+        });
+
+        return result;
+    },
+};

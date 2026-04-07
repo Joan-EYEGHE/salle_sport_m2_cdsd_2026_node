@@ -1,16 +1,18 @@
 import { Router } from "express";
-import ticketRoutes from "./ticket.routes";
-import userRoutes from "./user.routes";
 import authRoutes from "./auth.routes";
-
-
-
-//TODO : add other router here : customers, tickets, payments, users,....
+import userRoutes from "./user.routes";
+import ticketRoutes from "./ticket.routes";
+import activityRoutes from "./activity.routes";
+import memberRoutes from "./member.routes";
+import transactionRoutes from "./transaction.routes";
 
 const router = Router();
 
-router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
-router.use('/tickets', ticketRoutes);
+router.use('/auth',         authRoutes);
+router.use('/users',        userRoutes);
+router.use('/tickets',      ticketRoutes);
+router.use('/activities',   activityRoutes);
+router.use('/members',      memberRoutes);
+router.use('/transactions', transactionRoutes);
 
 export default router;
