@@ -2,7 +2,7 @@
 
 # 🏋️ GymFlow — Backend API (Node.js)
 
-**API REST sécurisée (JWT) pour la gestion d’une salle de sport** : membres, activités/cours, transactions, billetterie (tickets), logs de contrôle, statistiques & exports.
+**API REST sécurisée (JWT) pour la gestion d'une salle de sport** : membres, activités/cours, transactions, billetterie (tickets), logs de contrôle, statistiques & exports.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.x-000000?style=for-the-badge&logo=express&logoColor=white)
@@ -116,7 +116,7 @@ Créer un `.env` à la racine :
 
 | Variable | Exemple | Description |
 |---|---:|---|
-| `PORT` | `5000` | Port HTTP de l’API |
+| `PORT` | `5000` | Port HTTP de l'API |
 | `DB_HOST` | `localhost` | Host MySQL |
 | `DB_PORT` | `3306` | Port MySQL |
 | `DB_NAME` | `salle_sport_m2_cdsd` | Nom de la base |
@@ -129,7 +129,7 @@ Créer un `.env` à la racine :
 
 ## 🔐 Comptes de seed
 
-Créés au démarrage si aucun user n’existe :
+Créés au démarrage si aucun user n'existe :
 
 - `admin@example.com` / `admin1234` — `ADMIN`
 - `cashier@example.com` / `cashier1234` — `CASHIER`
@@ -141,67 +141,69 @@ Créés au démarrage si aucun user n’existe :
 
 Base URL : `http://localhost:5000/api`
 
+> **Légende Auth** : `Public` = aucun token requis · `Bearer JWT` = header `Authorization: Bearer <token>` obligatoire
+
 ### Auth
 
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
-| POST | `/auth/login` | ❌ | — | Connexion |
-| POST | `/auth/logout` | ✅ | — | Déconnexion (token Bearer requis) |
-| POST | `/auth/refresh` | ❌ | — | Renouveler le token (body : `{ token }`) |
-| GET | `/auth/me` | ✅ | — | Profil courant |
+| POST | `/auth/login` | Public | — | Connexion |
+| POST | `/auth/logout` | Bearer JWT | — | Déconnexion |
+| POST | `/auth/refresh` | Public | — | Renouveler le token (body : `{ token }`) |
+| GET | `/auth/me` | Bearer JWT | — | Profil courant |
 
 ### Users
 
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
-| GET | `/users` | ✅ | — | Liste des users |
-| POST | `/users` | ✅ | — | Créer un user |
-| GET | `/users/:id` | ✅ | `ADMIN`, `CASHIER` | Détail user |
-| * | `/users/:id/tickets/*` | ✅ | `CONTROLLER` | Routes tickets “nested” |
+| GET | `/users` | Bearer JWT | — | Liste des users |
+| POST | `/users` | Bearer JWT | — | Créer un user |
+| GET | `/users/:id` | Bearer JWT | `ADMIN`, `CASHIER` | Détail user |
+| * | `/users/:id/tickets/*` | Bearer JWT | `CONTROLLER` | Routes tickets "nested" |
 
 ### Activities
 
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
-| GET | `/activities` | ✅ | — | Liste activités |
-| GET | `/activities/:id` | ✅ | — | Détail activité |
-| POST | `/activities` | ✅ | `ADMIN` | Créer |
-| PUT | `/activities/:id` | ✅ | `ADMIN` | Modifier |
-| DELETE | `/activities/:id` | ✅ | `ADMIN` | Soft delete |
+| GET | `/activities` | Bearer JWT | — | Liste activités |
+| GET | `/activities/:id` | Bearer JWT | — | Détail activité |
+| POST | `/activities` | Bearer JWT | `ADMIN` | Créer |
+| PUT | `/activities/:id` | Bearer JWT | `ADMIN` | Modifier |
+| DELETE | `/activities/:id` | Bearer JWT | `ADMIN` | Soft delete |
 
 ### Members
 
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
-| GET | `/members/qr/:uuid` | ✅ | `ADMIN`, `CASHIER` | Trouver membre via QR |
-| POST | `/members/subscribe` | ✅ | `ADMIN`, `CASHIER` | Souscrire / abonnement |
-| GET | `/members` | ✅ | `ADMIN`, `CASHIER` | Liste |
-| GET | `/members/:id` | ✅ | `ADMIN`, `CASHIER` | Détail |
-| PUT | `/members/:id` | ✅ | `ADMIN`, `CASHIER` | Modifier |
+| GET | `/members/qr/:uuid` | Bearer JWT | `ADMIN`, `CASHIER` | Trouver membre via QR |
+| POST | `/members/subscribe` | Bearer JWT | `ADMIN`, `CASHIER` | Souscrire / abonnement |
+| GET | `/members` | Bearer JWT | `ADMIN`, `CASHIER` | Liste |
+| GET | `/members/:id` | Bearer JWT | `ADMIN`, `CASHIER` | Détail |
+| PUT | `/members/:id` | Bearer JWT | `ADMIN`, `CASHIER` | Modifier |
 
 ### Transactions
 
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
-| GET | `/transactions/summary` | ✅ | `ADMIN`, `CASHIER` | Résumé |
-| GET | `/transactions/export` | ✅ | `ADMIN`, `CASHIER` | Export CSV |
-| GET | `/transactions` | ✅ | `ADMIN`, `CASHIER` | Liste |
-| POST | `/transactions` | ✅ | `ADMIN`, `CASHIER` | Créer |
+| GET | `/transactions/summary` | Bearer JWT | `ADMIN`, `CASHIER` | Résumé |
+| GET | `/transactions/export` | Bearer JWT | `ADMIN`, `CASHIER` | Export CSV |
+| GET | `/transactions` | Bearer JWT | `ADMIN`, `CASHIER` | Liste |
+| POST | `/transactions` | Bearer JWT | `ADMIN`, `CASHIER` | Créer |
 
 ### Tickets / Batches / Access logs
 
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
-| GET | `/tickets` | ✅ | `ADMIN`, `CASHIER` | Liste tickets |
-| GET | `/tickets/:id` | ✅ | `ADMIN`, `CASHIER` | Détail ticket |
-| PUT | `/tickets/:id/sell` | ✅ | `ADMIN`, `CASHIER` | Vendre ticket |
-| POST | `/tickets/validate` | ✅ | `ADMIN`, `CONTROLLER` | Valider ticket (log) |
-| GET | `/batches` | ✅ | `ADMIN`, `CASHIER` | Liste lots |
-| POST | `/batches/generate` | ✅ | `ADMIN`, `CASHIER` | Générer lot |
-| GET | `/batches/:id` | ✅ | `ADMIN`, `CASHIER` | Détail lot |
-| GET | `/access-logs` | ✅ | `ADMIN`, `CONTROLLER` | Liste logs |
-| GET | `/access-logs/stats` | ✅ | `ADMIN`, `CONTROLLER` | Stats |
-| GET | `/access-logs/export` | ✅ | `ADMIN`, `CONTROLLER` | Export CSV |
+| GET | `/tickets` | Bearer JWT | `ADMIN`, `CASHIER` | Liste tickets |
+| GET | `/tickets/:id` | Bearer JWT | `ADMIN`, `CASHIER` | Détail ticket |
+| PUT | `/tickets/:id/sell` | Bearer JWT | `ADMIN`, `CASHIER` | Vendre ticket |
+| POST | `/tickets/validate` | Bearer JWT | `ADMIN`, `CONTROLLER` | Valider ticket (log) |
+| GET | `/batches` | Bearer JWT | `ADMIN`, `CASHIER` | Liste lots |
+| POST | `/batches/generate` | Bearer JWT | `ADMIN`, `CASHIER` | Générer lot |
+| GET | `/batches/:id` | Bearer JWT | `ADMIN`, `CASHIER` | Détail lot |
+| GET | `/access-logs` | Bearer JWT | `ADMIN`, `CONTROLLER` | Liste logs |
+| GET | `/access-logs/stats` | Bearer JWT | `ADMIN`, `CONTROLLER` | Stats |
+| GET | `/access-logs/export` | Bearer JWT | `ADMIN`, `CONTROLLER` | Export CSV |
 
 ---
 
@@ -222,4 +224,3 @@ Base URL : `http://localhost:5000/api`
 ## 📜 License
 
 MIT
-
