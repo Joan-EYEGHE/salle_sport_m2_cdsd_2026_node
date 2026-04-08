@@ -13,12 +13,20 @@ export const AuthController = {
             next(error)
         }
     },
-    // AUDIT FIX: stubs vides → requêtes bloquées indéfiniment
-    logout(req: Request, res: Response, next: NextFunction) {
+    logout(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         res.json({ success: true, message: 'Logged out' });
     },
-    refresh(req: Request, res: Response, next: NextFunction) {
-        res.status(501).json({ success: false, message: 'Not implemented' });
+    async refresh(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { token } = req.body as { token: string };
+            if (!token) {
+                return res.status(400).json({ success: false, message: 'Token is required' });
+            }
+            const result = await AuthService.refresh(token);
+            return res.json({ success: true, data: result });
+        } catch (error) {
+            next(error);
+        }
     },
     me(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         res.json({ success: true, data: req.user ?? null });

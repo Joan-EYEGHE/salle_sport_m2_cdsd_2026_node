@@ -146,8 +146,8 @@ Base URL : `http://localhost:5000/api`
 | Méthode | Endpoint | Auth | Rôle | Description |
 |---|---|---|---|---|
 | POST | `/auth/login` | ❌ | — | Connexion |
-| POST | `/auth/logout` | ❌ | — | Déconnexion (logique côté API) |
-| POST | `/auth/refresh` | ❌ | — | Refresh token |
+| POST | `/auth/logout` | ✅ | — | Déconnexion (token Bearer requis) |
+| POST | `/auth/refresh` | ❌ | — | Renouveler le token (body : `{ token }`) |
 | GET | `/auth/me` | ✅ | — | Profil courant |
 
 ### Users
