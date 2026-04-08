@@ -131,9 +131,9 @@ Créer un `.env` à la racine :
 
 Créés au démarrage si aucun user n'existe :
 
-- `admin@example.com` / `admin1234` — `ADMIN`
-- `cashier@example.com` / `cashier1234` — `CASHIER`
-- `controller@example.com` / `controller1234` — `CONTROLLER`
+- `admin@gymflow.com` / `admin1234` — `ADMIN`
+- `cashier@gymflow.com` / `cashier1234` — `CASHIER`
+- `controller@gymflow.com` / `controller1234` — `CONTROLLER`
 
 ---
 
