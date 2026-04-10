@@ -1,9 +1,18 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
+import slugify from 'slugify';
+import { randomUUID } from 'crypto';
+
+function generateSlug(prenom: string, nom: string): string {
+    const base = slugify(`${prenom} ${nom}`, { lower: true, strict: true });
+    const suffix = randomUUID().replace(/-/g, '').substring(0, 4);
+    return `${base}-${suffix}`;
+}
 
 export class Member extends Model<InferAttributes<Member>, InferCreationAttributes<Member>> {
     declare id: CreationOptional<number>;
     declare nom: string;
     declare prenom: string;
+    declare slug: CreationOptional<string>;
     declare email: CreationOptional<string | null>;
     declare phone: CreationOptional<string | null>;
     declare date_naissance: CreationOptional<string | null>;
@@ -27,6 +36,11 @@ export const initMemberModel = (sequelize: Sequelize) => {
         prenom: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        slug: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true,
         },
         email: {
             type: DataTypes.STRING,
@@ -55,5 +69,17 @@ export const initMemberModel = (sequelize: Sequelize) => {
         sequelize,
         tableName: 'members',
         timestamps: true,
+        hooks: {
+            beforeCreate(member) {
+                if (!member.slug) {
+                    member.slug = generateSlug(member.prenom, member.nom);
+                }
+            },
+            beforeUpdate(member) {
+                if (member.changed('nom') || member.changed('prenom')) {
+                    member.slug = generateSlug(member.prenom, member.nom);
+                }
+            },
+        },
     });
 };

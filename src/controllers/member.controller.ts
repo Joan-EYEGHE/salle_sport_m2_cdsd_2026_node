@@ -13,7 +13,7 @@ export const MemberController = {
 
     async getById(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await MemberService.getById(Number(req.params.id));
+            const data = await MemberService.getById(req.params.id as string);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
@@ -22,7 +22,7 @@ export const MemberController = {
 
     async findByQr(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await MemberService.findByQr(req.params.uuid);
+            const data = await MemberService.findByQr(req.params.uuid as string);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
@@ -31,7 +31,7 @@ export const MemberController = {
 
     async update(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await MemberService.update(Number(req.params.id), req.body);
+            const data = await MemberService.update(req.params.id as string, req.body);
             res.json({ success: true, data });
         } catch (error) {
             next(error);

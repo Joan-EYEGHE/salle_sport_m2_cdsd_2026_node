@@ -37,6 +37,25 @@ export const MemberData = {
         return Member.findOne({ where: { uuid_qr } });
     },
 
+    findBySlug(slug: string) {
+        return Member.findOne({
+            where: { slug },
+            include: [
+                {
+                    model: Subscription,
+                    separate: true,
+                    order: [['createdAt', 'DESC']],
+                    include: [{ model: Activity }],
+                },
+                {
+                    model: Transaction,
+                    separate: true,
+                    order: [['createdAt', 'DESC']],
+                },
+            ],
+        });
+    },
+
     create(values: Partial<Member['_creationAttributes']>, t?: SequelizeTransaction) {
         return Member.create(values as any, { transaction: t });
     },

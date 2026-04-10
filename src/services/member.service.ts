@@ -32,8 +32,11 @@ export const MemberService = {
         return MemberData.findAll();
     },
 
-    async getById(id: number) {
-        const member = await MemberData.findByPk(id);
+    async getById(idOrSlug: string | number) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const member = isSlug
+            ? await MemberData.findBySlug(String(idOrSlug))
+            : await MemberData.findByPk(Number(idOrSlug));
         if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
         return member;
     },
@@ -44,8 +47,11 @@ export const MemberService = {
         return member;
     },
 
-    async update(id: number, input: any) {
-        const member = await MemberData.findByPk(id);
+    async update(idOrSlug: string | number, input: any) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const member = isSlug
+            ? await MemberData.findBySlug(String(idOrSlug))
+            : await MemberData.findByPk(Number(idOrSlug));
         if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
 
         const allowed = ['nom', 'prenom', 'email', 'phone', 'date_naissance', 'adresse'];
@@ -56,13 +62,13 @@ export const MemberService = {
 
         if (values.email) {
             const existing = await Member.findOne({ where: { email: values.email } });
-            if (existing && existing.id !== id) {
+            if (existing && existing.id !== member.id) {
                 throw Object.assign(new Error('Email déjà utilisé'), { status: 409 });
             }
         }
 
-        await MemberData.update(id, values);
-        return MemberData.findByPk(id);
+        await MemberData.update(member.id!, values);
+        return MemberData.findByPk(member.id!);
     },
 
     async subscribe(body: {

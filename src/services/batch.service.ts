@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { Activity, Batch, sequelize, Ticket } from "../models";
 import { BatchData } from "../data/batch.data";
 import { TicketStatus } from '../models/ticket.model';
@@ -13,7 +13,8 @@ function buildDatePrefix(d: Date): string {
 function computeStatusCounts(tickets: Ticket[]): Record<TicketStatus, number> {
     const counts: Record<TicketStatus, number> = { DISPONIBLE: 0, VENDU: 0, UTILISE: 0, EXPIRE: 0 };
     for (const t of tickets) {
-        if (t.status && counts[t.status] !== undefined) counts[t.status]++;
+        const s = t.status as TicketStatus | undefined;
+        if (s && s in counts) counts[s]++;
     }
     return counts;
 }
@@ -62,7 +63,7 @@ export const BatchService = {
                 const code_ticket = `${prefix}-${String(i + 1).padStart(3, '0')}`;
                 await Ticket.create({
                     id_batch: batch.id!,
-                    qr_code: uuidv4(),
+                    qr_code: randomUUID(),
                     code_ticket,
                     status: 'DISPONIBLE',
                     date_expiration,
