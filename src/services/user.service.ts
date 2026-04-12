@@ -6,7 +6,8 @@ type ListQuery = {
     page?: number;
     limit?: number;
     search?: string;
-    isActive?: string;
+    /** When "true" or "1", list active and inactive users. Otherwise only isActive === true. */
+    includeInactive?: string;
 }
 type CreateUserInput = {
     fullName: string;
@@ -21,16 +22,15 @@ const normalizeEmail = (email: string) => email.trim().toLocaleLowerCase();
 export const UserService = {
     async list(query: ListQuery) {
         const page = query.page && query.page > 0 ? query.page : 1;
-        const isActive = query.isActive ? query.isActive : '';
         const limit = query.limit && query.limit > 0 ? Math.min(query.limit, 100) : 20;
         const offset = (page - 1) * limit
 
-        const where: any = {}
+        const where: Record<string, unknown> & { [Op.or]?: object[] } = {}
 
-        if (isActive === "active") {
+        const includeInactive =
+            query.includeInactive === 'true' || query.includeInactive === '1';
+        if (!includeInactive) {
             where.isActive = true;
-        } else if (isActive === "inactive") {
-            where.isActive = false;
         }
 
         if (query.search && query.search.trim()) {
@@ -43,6 +43,7 @@ export const UserService = {
 
         const { rows, count } = await User.findAndCountAll({
             where,
+            attributes: { exclude: ['passwordHash'] },
             limit,
             offset,
             order: [['fullName', 'ASC']]

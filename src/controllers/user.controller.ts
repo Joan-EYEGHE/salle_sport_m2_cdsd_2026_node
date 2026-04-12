@@ -5,7 +5,6 @@ import { AuthenticatedRequest } from "../utils/interfaces";
 
 export const UserController = {
     async list(req: Request, res: Response, next: NextFunction) {
-        console.log("Controller")
         try {
             const allUsers = await UserService.list(req.query)
             res.json({
