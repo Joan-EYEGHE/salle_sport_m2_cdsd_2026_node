@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_routes_1 = __importDefault(require("./auth.routes"));
+const user_routes_1 = __importDefault(require("./user.routes"));
+const ticket_routes_1 = __importDefault(require("./ticket.routes"));
+const activity_routes_1 = __importDefault(require("./activity.routes"));
+const member_routes_1 = __importDefault(require("./member.routes"));
+const transaction_routes_1 = __importDefault(require("./transaction.routes"));
+const batch_routes_1 = __importDefault(require("./batch.routes"));
+const accesslog_routes_1 = __importDefault(require("./accesslog.routes"));
+const subscription_routes_1 = __importDefault(require("./subscription.routes"));
+const router = (0, express_1.Router)();
+router.use('/auth', auth_routes_1.default);
+router.use('/users', user_routes_1.default);
+router.use('/tickets', ticket_routes_1.default);
+router.use('/activities', activity_routes_1.default);
+router.use('/members', member_routes_1.default);
+router.use('/transactions', transaction_routes_1.default);
+router.use('/batches', batch_routes_1.default);
+router.use('/access-logs', accesslog_routes_1.default);
+router.use('/subscriptions', subscription_routes_1.default);
+exports.default = router;

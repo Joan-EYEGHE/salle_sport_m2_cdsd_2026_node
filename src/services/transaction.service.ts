@@ -5,6 +5,7 @@ type ListFilters = {
     type?: string;
     date_debut?: string;
     date_fin?: string;
+    memberId?: string;
 };
 
 type CreateManualInput = {
@@ -21,7 +22,14 @@ export const TransactionService = {
         if (type && type !== 'REVENU' && type !== 'DEPENSE') {
             throw Object.assign(new Error('type doit être REVENU ou DEPENSE'), { status: 400 });
         }
-        return TransactionData.findAll({ type, date_debut: filters.date_debut, date_fin: filters.date_fin });
+        const mid = filters.memberId != null ? Number(filters.memberId) : undefined;
+        const memberId = Number.isFinite(mid) ? mid : undefined;
+        return TransactionData.findAll({
+            type,
+            date_debut: filters.date_debut,
+            date_fin: filters.date_fin,
+            memberId,
+        });
     },
 
     async createManual(input: CreateManualInput) {
@@ -45,10 +53,13 @@ export const TransactionService = {
 
     async summary(filters: ListFilters = {}) {
         const type = filters.type as TypeTransaction | undefined;
+        const mid = filters.memberId != null ? Number(filters.memberId) : undefined;
+        const memberId = Number.isFinite(mid) ? mid : undefined;
         const rows = await TransactionData.findAll({
             type,
             date_debut: filters.date_debut,
             date_fin: filters.date_fin,
+            memberId,
         });
 
         let total_revenus = 0;
@@ -70,10 +81,13 @@ export const TransactionService = {
 
     async listForExport(filters: ListFilters = {}) {
         const type = filters.type as TypeTransaction | undefined;
+        const mid = filters.memberId != null ? Number(filters.memberId) : undefined;
+        const memberId = Number.isFinite(mid) ? mid : undefined;
         return TransactionData.findAll({
             type,
             date_debut: filters.date_debut,
             date_fin: filters.date_fin,
+            memberId,
         });
     },
 };

@@ -6,14 +6,14 @@ import { requireRole } from "../middlewares/role.middleware";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(requireRole('ADMIN', 'CASHIER'));
 
 // Static / specific paths must come before /:id
-router.get('/qr/:uuid',  MemberController.findByQr);
-router.post('/subscribe', MemberController.subscribe);
+router.get('/qr/:uuid', requireRole('ADMIN', 'CASHIER'), MemberController.findByQr);
+router.post('/subscribe', requireRole('ADMIN', 'CASHIER'), MemberController.subscribe);
 
-router.get('/',       MemberController.list);
-router.get('/:id',    MemberController.getById);
-router.put('/:id',    MemberController.update);
+router.get('/', requireRole('ADMIN', 'CASHIER'), MemberController.list);
+router.post('/', requireRole('ADMIN', 'CASHIER'), MemberController.create);
+router.get('/:id', requireRole('ADMIN', 'CASHIER', 'CONTROLLER'), MemberController.getById);
+router.put('/:id', requireRole('ADMIN', 'CASHIER'), MemberController.update);
 
 export default router;

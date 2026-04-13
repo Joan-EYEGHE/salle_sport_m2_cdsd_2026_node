@@ -1,35 +1,67 @@
 import { Op, Transaction as SequelizeTransaction, WhereOptions } from "sequelize";
-import { AccessLog, Ticket, User } from "../models";
+import { AccessLog, Activity, Batch, Member, Ticket, User } from "../models";
 import { ResultatScan } from "../models/accesslog.model";
 
-type LogFilters = {
+export type LogFilters = {
     resultat?: ResultatScan;
     date_debut?: string;
     date_fin?: string;
+    period?: string;
+    memberId?: number;
 };
 
 export const AccessLogData = {
     buildWhere(filters: LogFilters): WhereOptions {
         const where: any = {};
         if (filters.resultat) where.resultat = filters.resultat;
-        if (filters.date_debut && filters.date_fin) {
-            where.date_scan = { [Op.between]: [new Date(filters.date_debut), new Date(filters.date_fin + 'T23:59:59')] };
+
+        let dateCond: any = null;
+        if (filters.period === 'today') {
+            const s = new Date();
+            s.setHours(0, 0, 0, 0);
+            const e = new Date();
+            e.setHours(23, 59, 59, 999);
+            dateCond = { [Op.between]: [s, e] };
+        } else if (filters.date_debut && filters.date_fin) {
+            dateCond = { [Op.between]: [new Date(filters.date_debut), new Date(filters.date_fin + 'T23:59:59')] };
         } else if (filters.date_debut) {
-            where.date_scan = { [Op.gte]: new Date(filters.date_debut) };
+            dateCond = { [Op.gte]: new Date(filters.date_debut) };
         } else if (filters.date_fin) {
-            where.date_scan = { [Op.lte]: new Date(filters.date_fin + 'T23:59:59') };
+            dateCond = { [Op.lte]: new Date(filters.date_fin + 'T23:59:59') };
         }
+
+        if (dateCond) {
+            where.date_scan = dateCond;
+        }
+
+        if (filters.memberId != null && Number.isFinite(filters.memberId)) {
+            where.id_membre = filters.memberId;
+        }
+
         return where;
     },
 
-    findAll(filters: LogFilters = {}) {
+    findAll(filters: LogFilters & { limit?: number; sort?: 'asc' | 'desc' } = {}) {
+        const orderDir = filters.sort === 'asc' ? 'ASC' : 'DESC';
+        const lim = filters.limit != null && Number(filters.limit) > 0
+            ? Math.min(500, Number(filters.limit))
+            : undefined;
+
+        const { limit: _l, sort: _s, ...whereFilters } = filters;
+
         return AccessLog.findAll({
-            where: this.buildWhere(filters),
+            where: this.buildWhere(whereFilters),
             include: [
                 { model: User, attributes: ['id', 'fullName'] },
-                { model: Ticket, attributes: ['id', 'code_ticket', 'qr_code', 'status'] },
+                {
+                    model: Ticket,
+                    required: false,
+                    include: [{ model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] }],
+                },
+                { model: Member, as: 'membre', attributes: ['id', 'nom', 'prenom'], required: false },
             ],
-            order: [['date_scan', 'DESC']],
+            order: [['date_scan', orderDir]],
+            limit: lim,
         });
     },
 

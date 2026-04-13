@@ -6,6 +6,7 @@ type ListFilters = {
     type?: TypeTransaction;
     date_debut?: string;
     date_fin?: string;
+    memberId?: number;
 };
 
 export const TransactionData = {
@@ -20,6 +21,9 @@ export const TransactionData = {
             where.date = { [Op.gte]: new Date(filters.date_debut) };
         } else if (filters.date_fin) {
             where.date = { [Op.lte]: new Date(filters.date_fin + 'T23:59:59') };
+        }
+        if (filters.memberId != null && Number.isFinite(filters.memberId)) {
+            where.id_membre = filters.memberId;
         }
         return where;
     },

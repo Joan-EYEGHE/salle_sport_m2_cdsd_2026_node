@@ -11,6 +11,15 @@ export const MemberController = {
         }
     },
 
+    async create(req: Request, res: Response, next: NextFunction) {
+        try {
+            const data = await MemberService.create(req.body);
+            res.status(201).json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    },
+
     async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const data = await MemberService.getById(req.params.id as string);

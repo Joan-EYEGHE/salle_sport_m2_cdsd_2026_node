@@ -23,7 +23,12 @@ export const TicketController = {
 
     async sell(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await TicketService.sell(Number(req.params.id));
+            const body = req.body as { id_membre?: number } | undefined;
+            const idMembre = body?.id_membre != null ? Number(body.id_membre) : undefined;
+            const data = await TicketService.sell(
+                Number(req.params.id),
+                Number.isFinite(idMembre) ? idMembre : undefined,
+            );
             res.json({ success: true, data });
         } catch (error) {
             next(error);

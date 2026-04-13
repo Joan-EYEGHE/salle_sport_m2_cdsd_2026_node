@@ -5,6 +5,7 @@ export type TicketStatus = 'DISPONIBLE' | 'VENDU' | 'UTILISE' | 'EXPIRE';
 export class Ticket extends Model<InferAttributes<Ticket>, InferCreationAttributes<Ticket>> {
     declare id: CreationOptional<number>;
     declare id_batch: number;
+    declare id_membre: CreationOptional<number | null>;
     declare qr_code: CreationOptional<string>;
     declare code_ticket: string;
     declare status: CreationOptional<TicketStatus>;
@@ -25,6 +26,11 @@ export const initTicketModel = (sequelize: Sequelize) => {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
             references: { model: 'batches', key: 'id' },
+        },
+        id_membre: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+            references: { model: 'members', key: 'id' },
         },
         qr_code: {
             type: DataTypes.STRING,

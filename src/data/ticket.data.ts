@@ -2,10 +2,13 @@ import { Op, Transaction as SequelizeTransaction, WhereOptions } from "sequelize
 import { Activity, Batch, Ticket } from "../models";
 
 export const TicketData = {
-    findAll(filters: { status?: string; batch_id?: number } = {}) {
+    findAll(filters: { status?: string; batch_id?: number; memberId?: number } = {}) {
         const where: WhereOptions = {};
         if (filters.status) (where as any).status = filters.status;
         if (filters.batch_id) (where as any).id_batch = filters.batch_id;
+        if (filters.memberId != null && Number.isFinite(filters.memberId)) {
+            (where as any).id_membre = filters.memberId;
+        }
         return Ticket.findAll({
             where,
             include: [{ model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] }],

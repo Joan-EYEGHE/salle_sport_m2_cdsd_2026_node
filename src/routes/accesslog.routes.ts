@@ -6,11 +6,10 @@ import { requireRole } from "../middlewares/role.middleware";
 const router = Router();
 
 router.use(authMiddleware);
-router.use(requireRole('ADMIN', 'CONTROLLER'));
 
 // Static paths before any future /:id
-router.get('/stats',  AccessLogController.stats);
-router.get('/export', AccessLogController.exportCsv);
-router.get('/',       AccessLogController.list);
+router.get('/stats', requireRole('ADMIN', 'CONTROLLER'), AccessLogController.stats);
+router.get('/export', requireRole('ADMIN', 'CONTROLLER'), AccessLogController.exportCsv);
+router.get('/', requireRole('ADMIN', 'CASHIER', 'CONTROLLER'), AccessLogController.list);
 
 export default router;
