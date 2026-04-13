@@ -20,6 +20,8 @@ const initTicketModel = (sequelize) => {
         id_membre: {
             type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
             allowNull: true,
+            // Colonne physique en base (souvent member_id) — l’attribut Sequelize reste id_membre
+            field: 'member_id',
             references: { model: 'members', key: 'id' },
         },
         qr_code: {
