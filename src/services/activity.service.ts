@@ -1,4 +1,5 @@
-import { Activity } from "../models";
+import { Activity, Batch, Ticket } from "../models";
+import { Op } from "sequelize";
 import { ActivityData } from "../data/activity.data";
 
 type TarifEntry = { forfait: string; prix: number };
@@ -44,6 +45,7 @@ export const ActivityService = {
         const activity = await ActivityData.create({
             nom: input.nom.trim(),
             status: input.status ?? true,
+            active: true,
             frais_inscription:   input.frais_inscription   ?? 0,
             prix_ticket:         input.prix_ticket         ?? 0,
             prix_hebdomadaire:   input.prix_hebdomadaire   ?? 0,
@@ -77,7 +79,23 @@ export const ActivityService = {
     async softDelete(id: number) {
         const activity = await ActivityData.findByPk(id);
         if (!activity) throw Object.assign(new Error('Activity not found'), { status: 404 });
-        await ActivityData.update(id, { status: false });
+
+        const batches = await Batch.unscoped().findAll({
+            where: { id_activity: id },
+            attributes: ['id'],
+        });
+        const batchIds = batches.map((b) => b.id!).filter((id) => id != null);
+
+        await ActivityData.update(id, { active: false, status: false });
+        await Batch.update({ active: false }, { where: { id_activity: id } });
+
+        if (batchIds.length > 0) {
+            await Ticket.update(
+                { active: false },
+                { where: { id_batch: { [Op.in]: batchIds }, status: 'DISPONIBLE' } },
+            );
+        }
+
         return { message: 'Activity désactivée' };
     },
 };

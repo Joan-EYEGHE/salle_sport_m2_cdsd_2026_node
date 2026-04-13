@@ -33,10 +33,18 @@ const initTransactionModel = (sequelize) => {
             allowNull: true,
             references: { model: 'members', key: 'id' },
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'transactions',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initTransactionModel = initTransactionModel;

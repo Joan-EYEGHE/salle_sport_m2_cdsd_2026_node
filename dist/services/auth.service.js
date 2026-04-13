@@ -37,7 +37,7 @@ exports.AuthService = {
             throw Object.assign(new Error('Invalid or expired refresh token'), { status: 401 });
         }
         const user = await models_1.User.findByPk(decoded.id);
-        if (!user || !user.isActive) {
+        if (!user || !user.active) {
             throw Object.assign(new Error('User not found or inactive'), { status: 401 });
         }
         const newToken = (0, jwt_1.signToken)({ id: user.id, role: user.role });

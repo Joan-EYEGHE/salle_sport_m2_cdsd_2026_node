@@ -13,7 +13,7 @@ exports.UserService = {
         const where = {};
         const includeInactive = query.includeInactive === 'true' || query.includeInactive === '1';
         if (!includeInactive) {
-            where.isActive = true;
+            where.active = true;
         }
         if (query.search && query.search.trim()) {
             const q = `%${query.search.trim()}%`;
@@ -22,7 +22,8 @@ exports.UserService = {
                 { email: { [sequelize_1.Op.like]: q } }
             ];
         }
-        const { rows, count } = await models_1.User.findAndCountAll({
+        const UserQuery = includeInactive ? models_1.User.unscoped() : models_1.User;
+        const { rows, count } = await UserQuery.findAndCountAll({
             where,
             attributes: { exclude: ['passwordHash'] },
             limit,
@@ -61,13 +62,13 @@ exports.UserService = {
             passwordHash: hashed,
             role: input.role,
             firstConnection: false,
-            isActive: true,
+            active: true,
         });
         const safeUser = models_1.User.findByPk(user.id, { attributes: { exclude: ["passwordHash"] } });
         return safeUser;
     },
     // AUDIT FIX: méthode manquante appelée par router.param dans user.routes.ts
     async findById(id) {
-        return models_1.User.findByPk(id, { attributes: { exclude: ['passwordHash'] } });
+        return models_1.User.unscoped().findByPk(id, { attributes: { exclude: ['passwordHash'] } });
     },
 };

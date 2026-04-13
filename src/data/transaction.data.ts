@@ -31,7 +31,7 @@ export const TransactionData = {
     findAll(filters: ListFilters = {}) {
         return Transaction.findAll({
             where: this.buildWhere(filters),
-            include: [{ model: Member, attributes: ['id', 'nom', 'prenom'] }],
+            include: [{ model: Member, as: 'member', attributes: ['id', 'nom', 'prenom'] }],
             order: [['date', 'DESC']],
         });
     },

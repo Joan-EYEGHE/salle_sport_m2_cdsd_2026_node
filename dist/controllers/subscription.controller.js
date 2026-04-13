@@ -65,7 +65,7 @@ exports.SubscriptionController = {
                 return;
             }
             await subscription_service_1.SubscriptionService.remove(id);
-            res.json({ success: true });
+            res.json({ success: true, message: "Supprimé avec succès" });
         }
         catch (error) {
             next(error);

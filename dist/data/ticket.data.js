@@ -15,13 +15,19 @@ exports.TicketData = {
         }
         return models_1.Ticket.findAll({
             where,
-            include: [{ model: models_1.Batch, include: [{ model: models_1.Activity, attributes: ['id', 'nom'] }] }],
+            include: [
+                { model: models_1.Batch, include: [{ model: models_1.Activity, attributes: ['id', 'nom'] }] },
+                { model: models_1.Member, as: 'member', attributes: ['id', 'nom', 'prenom'], required: false },
+            ],
             order: [['createdAt', 'DESC']],
         });
     },
     findByPk(id) {
         return models_1.Ticket.findByPk(id, {
-            include: [{ model: models_1.Batch, include: [{ model: models_1.Activity, attributes: ['id', 'nom'] }] }],
+            include: [
+                { model: models_1.Batch, include: [{ model: models_1.Activity, attributes: ['id', 'nom'] }] },
+                { model: models_1.Member, as: 'member', attributes: ['id', 'nom', 'prenom'], required: false },
+            ],
         });
     },
     findByCode(code) {

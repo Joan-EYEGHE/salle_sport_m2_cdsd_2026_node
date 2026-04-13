@@ -34,10 +34,18 @@ const initAccessLogModel = (sequelize) => {
             allowNull: false,
             references: { model: 'users', key: 'id' },
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'access_logs',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initAccessLogModel = initAccessLogModel;

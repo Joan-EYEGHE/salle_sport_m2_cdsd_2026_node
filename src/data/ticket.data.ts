@@ -1,5 +1,5 @@
 import { Op, Transaction as SequelizeTransaction, WhereOptions } from "sequelize";
-import { Activity, Batch, Ticket } from "../models";
+import { Activity, Batch, Member, Ticket } from "../models";
 
 export const TicketData = {
     findAll(filters: { status?: string; batch_id?: number; memberId?: number } = {}) {
@@ -11,14 +11,20 @@ export const TicketData = {
         }
         return Ticket.findAll({
             where,
-            include: [{ model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] }],
+            include: [
+                { model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] },
+                { model: Member, as: 'member', attributes: ['id', 'nom', 'prenom'], required: false },
+            ],
             order: [['createdAt', 'DESC']],
         });
     },
 
     findByPk(id: number) {
         return Ticket.findByPk(id, {
-            include: [{ model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] }],
+            include: [
+                { model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] },
+                { model: Member, as: 'member', attributes: ['id', 'nom', 'prenom'], required: false },
+            ],
         });
     },
 

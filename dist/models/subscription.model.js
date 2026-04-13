@@ -46,10 +46,18 @@ const initSubscriptionModel = (sequelize) => {
             type: sequelize_1.DataTypes.DATEONLY,
             allowNull: false,
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'subscriptions',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initSubscriptionModel = initSubscriptionModel;

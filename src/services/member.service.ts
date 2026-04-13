@@ -154,7 +154,9 @@ export const MemberService = {
                 lock: t.LOCK.UPDATE,
             });
             if (!activity) throw Object.assign(new Error('Activité introuvable'), { status: 404 });
-            if (!activity.status) throw Object.assign(new Error('Activité inactive'), { status: 400 });
+            if (!activity.status || !activity.active) {
+                throw Object.assign(new Error('Activité inactive'), { status: 400 });
+            }
 
             const fraisInscription = Number(abonnement.frais_inscription_payes ?? 0);
             let montant_total: number;
@@ -194,5 +196,12 @@ export const MemberService = {
         });
 
         return result;
+    },
+
+    async softDelete(id: number) {
+        const member = await MemberData.findByPk(id);
+        if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
+        await Member.update({ active: false }, { where: { id: member.id } });
+        await Subscription.update({ active: false }, { where: { id_membre: member.id, active: true } });
     },
 };

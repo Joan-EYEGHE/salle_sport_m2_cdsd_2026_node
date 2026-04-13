@@ -6,7 +6,7 @@ type ListQuery = {
     page?: number;
     limit?: number;
     search?: string;
-    /** When "true" or "1", list active and inactive users. Otherwise only isActive === true. */
+    /** When "true" or "1", list active and inactive users. Otherwise only active === true. */
     includeInactive?: string;
 }
 type CreateUserInput = {
@@ -30,7 +30,7 @@ export const UserService = {
         const includeInactive =
             query.includeInactive === 'true' || query.includeInactive === '1';
         if (!includeInactive) {
-            where.isActive = true;
+            where.active = true;
         }
 
         if (query.search && query.search.trim()) {
@@ -41,7 +41,8 @@ export const UserService = {
             ]
         }
 
-        const { rows, count } = await User.findAndCountAll({
+        const UserQuery = includeInactive ? User.unscoped() : User;
+        const { rows, count } = await UserQuery.findAndCountAll({
             where,
             attributes: { exclude: ['passwordHash'] },
             limit,
@@ -84,7 +85,7 @@ export const UserService = {
             passwordHash: hashed,
             role: input.role,
             firstConnection: false,
-            isActive: true,
+            active: true,
         });
         const safeUser = User.findByPk(user.id, { attributes: { exclude: ["passwordHash"] } });
         return safeUser;
@@ -94,7 +95,7 @@ export const UserService = {
 
     // AUDIT FIX: méthode manquante appelée par router.param dans user.routes.ts
     async findById(id: number) {
-        return User.findByPk(id, { attributes: { exclude: ['passwordHash'] } });
+        return User.unscoped().findByPk(id, { attributes: { exclude: ['passwordHash'] } });
     },
 
 }

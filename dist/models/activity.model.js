@@ -48,10 +48,18 @@ const initActivityModel = (sequelize) => {
             type: sequelize_1.DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'activities',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initActivityModel = initActivityModel;

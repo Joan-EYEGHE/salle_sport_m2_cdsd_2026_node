@@ -26,7 +26,7 @@ exports.TransactionData = {
     findAll(filters = {}) {
         return models_1.Transaction.findAll({
             where: this.buildWhere(filters),
-            include: [{ model: models_1.Member, attributes: ['id', 'nom', 'prenom'] }],
+            include: [{ model: models_1.Member, as: 'member', attributes: ['id', 'nom', 'prenom'] }],
             order: [['date', 'DESC']],
         });
     },

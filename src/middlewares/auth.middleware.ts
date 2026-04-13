@@ -21,7 +21,7 @@ export const authMiddleware = async (
         const decoded = verifyToken(token);
         //find the user with credentials
         const user = await User.findByPk(decoded.id);
-        if (!user || !user.isActive) {
+        if (!user || !user.active) {
             return res.status(401).json({ success: false, message: 'Unauthorized' })
         }
         //inject the user in the request

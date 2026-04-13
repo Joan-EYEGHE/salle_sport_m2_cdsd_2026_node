@@ -134,8 +134,9 @@ exports.MemberService = {
             });
             if (!activity)
                 throw Object.assign(new Error('Activité introuvable'), { status: 404 });
-            if (!activity.status)
+            if (!activity.status || !activity.active) {
                 throw Object.assign(new Error('Activité inactive'), { status: 400 });
+            }
             const fraisInscription = Number(abonnement.frais_inscription_payes ?? 0);
             let montant_total;
             if (abonnement.montant_override != null && abonnement.montant_override !== undefined) {
@@ -170,5 +171,12 @@ exports.MemberService = {
             return member_data_1.MemberData.reloadWithSubscription(member.id, t);
         });
         return result;
+    },
+    async softDelete(id) {
+        const member = await member_data_1.MemberData.findByPk(id);
+        if (!member)
+            throw Object.assign(new Error('Member not found'), { status: 404 });
+        await models_1.Member.update({ active: false }, { where: { id: member.id } });
+        await models_1.Subscription.update({ active: false }, { where: { id_membre: member.id, active: true } });
     },
 };

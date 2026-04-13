@@ -11,6 +11,7 @@ export class Ticket extends Model<InferAttributes<Ticket>, InferCreationAttribut
     declare status: CreationOptional<TicketStatus>;
     declare date_expiration: Date;
     declare prix_unitaire: number;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -58,9 +59,17 @@ export const initTicketModel = (sequelize: Sequelize) => {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'tickets',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };

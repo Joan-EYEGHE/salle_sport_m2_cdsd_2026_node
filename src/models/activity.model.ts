@@ -11,6 +11,7 @@ export class Activity extends Model<InferAttributes<Activity>, InferCreationAttr
     declare prix_trimestriel: CreationOptional<number>;
     declare prix_annuel: CreationOptional<number>;
     declare isMonthlyOnly: CreationOptional<boolean>;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -58,9 +59,17 @@ export const initActivityModel = (sequelize: Sequelize) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'activities',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };

@@ -38,7 +38,7 @@ export const AuthService = {
         }
 
         const user = await User.findByPk(decoded.id);
-        if (!user || !user.isActive) {
+        if (!user || !user.active) {
             throw Object.assign(new Error('User not found or inactive'), { status: 401 });
         }
 

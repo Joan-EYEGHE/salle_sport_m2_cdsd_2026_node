@@ -48,10 +48,18 @@ const initTicketModel = (sequelize) => {
             type: sequelize_1.DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'tickets',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initTicketModel = initTicketModel;

@@ -8,7 +8,7 @@ export interface User {
     email: string,
     password: string,
     role: Role,
-    isActive: boolean
+    active: boolean
 }
 
 export interface AuthenticatedRequest extends Request {

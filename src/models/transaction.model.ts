@@ -9,6 +9,7 @@ export class Transaction extends Model<InferAttributes<Transaction>, InferCreati
     declare libelle: string;
     declare date: CreationOptional<Date>;
     declare id_membre: CreationOptional<number | null>;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -41,9 +42,17 @@ export const initTransactionModel = (sequelize: Sequelize) => {
             allowNull: true,
             references: { model: 'members', key: 'id' },
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'transactions',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };

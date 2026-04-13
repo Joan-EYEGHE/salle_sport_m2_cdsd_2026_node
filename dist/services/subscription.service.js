@@ -106,7 +106,7 @@ exports.SubscriptionService = {
             }, { transaction: t });
             await transaction_data_1.TransactionData.create({
                 type: "REVENU",
-                libelle: `Abonnement créé automatiquement — ${activity.nom} (#${subscription.id})`,
+                libelle: "",
                 montant: montant_total,
                 id_membre: idMembre,
                 date: new Date(),
@@ -170,7 +170,7 @@ exports.SubscriptionService = {
         });
     },
     async remove(id) {
-        const n = await models_1.Subscription.destroy({ where: { id } });
+        const [n] = await models_1.Subscription.update({ active: false }, { where: { id } });
         if (n === 0)
             throw Object.assign(new Error("Subscription not found"), { status: 404 });
     },

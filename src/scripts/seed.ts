@@ -33,7 +33,7 @@ async function seed() {
       email: u.email,
       passwordHash,
       role: u.role,
-      isActive: true,
+      active: true,
       firstConnection: false,
     });
     console.log(`[${created ? 'CRÉÉ' : 'MIS À JOUR'}] ${u.email} (${u.role})`);

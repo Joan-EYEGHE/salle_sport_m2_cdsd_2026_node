@@ -25,10 +25,18 @@ const initBatchModel = (sequelize) => {
             type: sequelize_1.DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'batches',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initBatchModel = initBatchModel;

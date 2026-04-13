@@ -18,6 +18,7 @@ export class Member extends Model<InferAttributes<Member>, InferCreationAttribut
     declare date_naissance: CreationOptional<string | null>;
     declare adresse: CreationOptional<string | null>;
     declare uuid_qr: CreationOptional<string>;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -65,10 +66,18 @@ export const initMemberModel = (sequelize: Sequelize) => {
             unique: true,
             defaultValue: DataTypes.UUIDV4,
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'members',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
         hooks: {
             beforeCreate(member) {
                 if (!member.slug) {

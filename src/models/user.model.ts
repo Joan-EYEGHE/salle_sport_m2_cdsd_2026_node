@@ -8,7 +8,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     declare email: string;
     declare passwordHash: string;
     declare role: UserRole;
-    declare isActive: boolean;
+    declare active: boolean;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
     declare firstConnection: boolean;
@@ -39,18 +39,21 @@ export const initUserModel = (sequelize: Sequelize) => {
             allowNull:false,
             defaultValue: 'CASHIER'
         },
-        isActive:{
+        active: {
             type: DataTypes.BOOLEAN,
-            allowNull:false,
+            allowNull: false,
             defaultValue: true,
         },
         firstConnection:{
             type: DataTypes.BOOLEAN,
             defaultValue: true,
         },
-    },{
+    }, {
         sequelize,
         tableName: 'users',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     })
 }

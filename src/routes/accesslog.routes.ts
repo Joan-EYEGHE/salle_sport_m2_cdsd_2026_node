@@ -8,7 +8,7 @@ const router = Router();
 router.use(authMiddleware);
 
 // Static paths before any future /:id
-router.get('/stats', requireRole('ADMIN', 'CONTROLLER'), AccessLogController.stats);
+router.get('/stats', requireRole('ADMIN', 'CASHIER', 'CONTROLLER'), AccessLogController.stats);
 router.get('/export', requireRole('ADMIN', 'CONTROLLER'), AccessLogController.exportCsv);
 router.get('/', requireRole('ADMIN', 'CASHIER', 'CONTROLLER'), AccessLogController.list);
 

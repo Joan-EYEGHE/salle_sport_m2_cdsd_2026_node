@@ -58,10 +58,18 @@ const initMemberModel = (sequelize) => {
             unique: true,
             defaultValue: sequelize_1.DataTypes.UUIDV4,
         },
+        active: {
+            type: sequelize_1.DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'members',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
         hooks: {
             beforeCreate(member) {
                 if (!member.slug) {

@@ -12,6 +12,7 @@ export class Subscription extends Model<InferAttributes<Subscription>, InferCrea
     declare montant_total: number;
     declare date_debut: string;
     declare date_prochain_paiement: string;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -57,9 +58,17 @@ export const initSubscriptionModel = (sequelize: Sequelize) => {
             type: DataTypes.DATEONLY,
             allowNull: false,
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'subscriptions',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };

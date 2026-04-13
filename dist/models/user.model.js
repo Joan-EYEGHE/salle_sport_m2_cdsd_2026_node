@@ -30,7 +30,7 @@ const initUserModel = (sequelize) => {
             allowNull: false,
             defaultValue: 'CASHIER'
         },
-        isActive: {
+        active: {
             type: sequelize_1.DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true,
@@ -43,6 +43,9 @@ const initUserModel = (sequelize) => {
         sequelize,
         tableName: 'users',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };
 exports.initUserModel = initUserModel;

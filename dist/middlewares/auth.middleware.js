@@ -14,7 +14,7 @@ const authMiddleware = async (req, res, next) => {
         const decoded = (0, jwt_1.verifyToken)(token);
         //find the user with credentials
         const user = await models_1.User.findByPk(decoded.id);
-        if (!user || !user.isActive) {
+        if (!user || !user.active) {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
         //inject the user in the request

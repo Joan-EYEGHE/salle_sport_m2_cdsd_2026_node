@@ -15,5 +15,6 @@ router.get('/', requireRole('ADMIN', 'CASHIER'), MemberController.list);
 router.post('/', requireRole('ADMIN', 'CASHIER'), MemberController.create);
 router.get('/:id', requireRole('ADMIN', 'CASHIER', 'CONTROLLER'), MemberController.getById);
 router.put('/:id', requireRole('ADMIN', 'CASHIER'), MemberController.update);
+router.delete('/:id', requireRole('ADMIN', 'CASHIER'), MemberController.remove);
 
 export default router;

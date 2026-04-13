@@ -9,6 +9,7 @@ export class AccessLog extends Model<InferAttributes<AccessLog>, InferCreationAt
     declare date_scan: CreationOptional<Date>;
     declare resultat: ResultatScan;
     declare id_controller: number;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -42,9 +43,17 @@ export const initAccessLogModel = (sequelize: Sequelize) => {
             allowNull: false,
             references: { model: 'users', key: 'id' },
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'access_logs',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };

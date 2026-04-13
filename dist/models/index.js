@@ -19,6 +19,7 @@ const transaction_model_1 = require("./transaction.model");
 Object.defineProperty(exports, "Transaction", { enumerable: true, get: function () { return transaction_model_1.Transaction; } });
 const accesslog_model_1 = require("./accesslog.model");
 Object.defineProperty(exports, "AccessLog", { enumerable: true, get: function () { return accesslog_model_1.AccessLog; } });
+/** Tous les modèles ci-dessous ont defaultScope { active: true }. Utiliser Model.unscoped() uniquement si un flux impose de lire des lignes désactivées (audit admin, export, etc.). */
 (0, user_model_1.initUserModel)(database_1.sequelize);
 (0, activity_model_1.initActivityModel)(database_1.sequelize);
 (0, member_model_1.initMemberModel)(database_1.sequelize);
@@ -37,11 +38,11 @@ batch_model_1.Batch.belongsTo(activity_model_1.Activity, { foreignKey: 'id_activ
 batch_model_1.Batch.hasMany(ticket_model_1.Ticket, { foreignKey: 'id_batch' });
 ticket_model_1.Ticket.belongsTo(batch_model_1.Batch, { foreignKey: 'id_batch' });
 member_model_1.Member.hasMany(transaction_model_1.Transaction, { foreignKey: 'id_membre' });
-transaction_model_1.Transaction.belongsTo(member_model_1.Member, { foreignKey: 'id_membre' });
+transaction_model_1.Transaction.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'member' });
 member_model_1.Member.hasMany(accesslog_model_1.AccessLog, { foreignKey: 'id_membre' });
 accesslog_model_1.AccessLog.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'membre' });
 member_model_1.Member.hasMany(ticket_model_1.Ticket, { foreignKey: 'id_membre' });
-ticket_model_1.Ticket.belongsTo(member_model_1.Member, { foreignKey: 'id_membre' });
+ticket_model_1.Ticket.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'member' });
 user_model_1.User.hasMany(accesslog_model_1.AccessLog, { foreignKey: 'id_controller' });
 accesslog_model_1.AccessLog.belongsTo(user_model_1.User, { foreignKey: 'id_controller' });
 // AUDIT FIX: association manquante, accesslog.data.ts l'utilise dans include

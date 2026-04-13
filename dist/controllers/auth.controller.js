@@ -37,9 +37,9 @@ exports.AuthController = {
                 return res.status(401).json({ success: false, message: 'Unauthorized' });
             }
             const user = await models_1.User.findByPk(req.user.id, {
-                attributes: ['id', 'email', 'role', 'fullName', 'isActive', 'firstConnection'],
+                attributes: ['id', 'email', 'role', 'fullName', 'active', 'firstConnection'],
             });
-            if (!user || !user.isActive) {
+            if (!user || !user.active) {
                 return res.status(401).json({ success: false, message: 'Unauthorized' });
             }
             return res.json({ success: true, data: user });

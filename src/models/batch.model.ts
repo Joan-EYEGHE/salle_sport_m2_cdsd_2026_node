@@ -5,6 +5,7 @@ export class Batch extends Model<InferAttributes<Batch>, InferCreationAttributes
     declare id_activity: number;
     declare quantite: number;
     declare prix_unitaire_applique: number;
+    declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
 }
@@ -29,9 +30,17 @@ export const initBatchModel = (sequelize: Sequelize) => {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
+        active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true,
+        },
     }, {
         sequelize,
         tableName: 'batches',
         timestamps: true,
+        defaultScope: {
+            where: { active: true },
+        },
     });
 };

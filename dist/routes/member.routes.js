@@ -13,4 +13,5 @@ router.get('/', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_c
 router.post('/', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.create);
 router.get('/:id', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER', 'CONTROLLER'), member_controller_1.MemberController.getById);
 router.put('/:id', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.update);
+router.delete('/:id', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.remove);
 exports.default = router;
