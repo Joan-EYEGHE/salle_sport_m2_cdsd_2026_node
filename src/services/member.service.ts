@@ -27,12 +27,6 @@ function addDays(dateStr: string, days: number): string {
     return `${y}-${m}-${dd}`;
 }
 
-/** Parse YYYY-MM-DD en date locale midi (évite les décalages fuseau). */
-function parseDateOnly(dateStr: string): Date {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    return new Date(year, month - 1, day, 12, 0, 0, 0);
-}
-
 export const MemberService = {
     async list() {
         return MemberData.findAll();
@@ -53,12 +47,10 @@ export const MemberService = {
         email?: string | null;
         phone: string;
         date_naissance?: string | null;
-        date_inscription: string;
     }) {
         if (!input.prenom?.trim()) throw Object.assign(new Error('Le prénom est requis'), { status: 400 });
         if (!input.nom?.trim()) throw Object.assign(new Error('Le nom est requis'), { status: 400 });
         if (!input.phone?.trim()) throw Object.assign(new Error('Le téléphone est requis'), { status: 400 });
-        if (!input.date_inscription?.trim()) throw Object.assign(new Error('La date d\'inscription est requise'), { status: 400 });
 
         const emailTrim = input.email?.trim();
         if (emailTrim) {
@@ -66,7 +58,6 @@ export const MemberService = {
             if (existing) throw Object.assign(new Error('Email déjà utilisé'), { status: 409 });
         }
 
-        const createdAt = parseDateOnly(input.date_inscription.trim());
         const dn = input.date_naissance?.trim();
         const member = await MemberData.create({
             prenom: input.prenom.trim(),
@@ -74,8 +65,6 @@ export const MemberService = {
             email: emailTrim || null,
             phone: input.phone.trim(),
             date_naissance: dn || null,
-            createdAt,
-            updatedAt: createdAt,
         });
         return MemberData.findByPk(member.id!);
     },
@@ -102,12 +91,6 @@ export const MemberService = {
         if (values.email !== undefined) {
             const et = typeof values.email === 'string' ? values.email.trim() : values.email;
             values.email = et ? et : null;
-        }
-
-        if (input.date_inscription !== undefined) {
-            const s = String(input.date_inscription).trim();
-            if (!s) throw Object.assign(new Error('La date d\'inscription est requise'), { status: 400 });
-            values.createdAt = parseDateOnly(s);
         }
 
         if (values.email) {
