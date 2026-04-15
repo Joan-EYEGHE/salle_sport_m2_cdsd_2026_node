@@ -39,9 +39,6 @@ Transaction.belongsTo(Member, { foreignKey: 'id_membre', as: 'member' });
 Member.hasMany(AccessLog, { foreignKey: 'id_membre' });
 AccessLog.belongsTo(Member, { foreignKey: 'id_membre', as: 'membre' });
 
-Member.hasMany(Ticket, { foreignKey: 'id_membre' });
-Ticket.belongsTo(Member, { foreignKey: 'id_membre', as: 'member' });
-
 User.hasMany(AccessLog, { foreignKey: 'id_controller' });
 AccessLog.belongsTo(User, { foreignKey: 'id_controller' });
 
