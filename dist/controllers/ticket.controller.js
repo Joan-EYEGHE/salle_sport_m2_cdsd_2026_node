@@ -23,9 +23,7 @@ exports.TicketController = {
     },
     async sell(req, res, next) {
         try {
-            const body = req.body;
-            const idMembre = body?.id_membre != null ? Number(body.id_membre) : undefined;
-            const data = await ticket_service_1.TicketService.sell(Number(req.params.id), Number.isFinite(idMembre) ? idMembre : undefined);
+            const data = await ticket_service_1.TicketService.sell(Number(req.params.id));
             res.json({ success: true, data });
         }
         catch (error) {

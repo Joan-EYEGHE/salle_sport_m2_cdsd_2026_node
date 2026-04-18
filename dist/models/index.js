@@ -41,8 +41,6 @@ member_model_1.Member.hasMany(transaction_model_1.Transaction, { foreignKey: 'id
 transaction_model_1.Transaction.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'member' });
 member_model_1.Member.hasMany(accesslog_model_1.AccessLog, { foreignKey: 'id_membre' });
 accesslog_model_1.AccessLog.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'membre' });
-member_model_1.Member.hasMany(ticket_model_1.Ticket, { foreignKey: 'id_membre' });
-ticket_model_1.Ticket.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'member' });
 user_model_1.User.hasMany(accesslog_model_1.AccessLog, { foreignKey: 'id_controller' });
 accesslog_model_1.AccessLog.belongsTo(user_model_1.User, { foreignKey: 'id_controller' });
 // AUDIT FIX: association manquante, accesslog.data.ts l'utilise dans include

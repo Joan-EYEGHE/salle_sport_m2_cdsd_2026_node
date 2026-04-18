@@ -10,14 +10,10 @@ exports.TicketData = {
             where.status = filters.status;
         if (filters.batch_id)
             where.id_batch = filters.batch_id;
-        if (filters.memberId != null && Number.isFinite(filters.memberId)) {
-            where.id_membre = filters.memberId;
-        }
         return models_1.Ticket.findAll({
             where,
             include: [
                 { model: models_1.Batch, include: [{ model: models_1.Activity, attributes: ['id', 'nom'] }] },
-                { model: models_1.Member, as: 'member', attributes: ['id', 'nom', 'prenom'], required: false },
             ],
             order: [['createdAt', 'DESC']],
         });
@@ -26,7 +22,6 @@ exports.TicketData = {
         return models_1.Ticket.findByPk(id, {
             include: [
                 { model: models_1.Batch, include: [{ model: models_1.Activity, attributes: ['id', 'nom'] }] },
-                { model: models_1.Member, as: 'member', attributes: ['id', 'nom', 'prenom'], required: false },
             ],
         });
     },
