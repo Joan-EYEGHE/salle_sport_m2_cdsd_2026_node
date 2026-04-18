@@ -65,25 +65,24 @@ exports.TicketService = {
             return { valid: false, reason: 'Ticket expiré', ticket_info: ticket };
         }
         if (ticket.status === 'DISPONIBLE') {
+            await ticket_data_1.TicketData.update(ticket.id, { status: 'UTILISE' });
             await accesslog_data_1.AccessLogData.create({
                 id_ticket: ticket.id,
                 id_membre: null,
-                resultat: 'ECHEC',
+                resultat: 'SUCCES',
                 id_controller: controllerId,
                 date_scan: now,
             });
-            return { valid: false, reason: 'Ticket non vendu', ticket_info: ticket };
+            const updatedTicket = await ticket_data_1.TicketData.findByPk(ticket.id);
+            return { valid: true, reason: null, ticket_info: updatedTicket };
         }
-        // status === 'VENDU' and not expired
-        await ticket_data_1.TicketData.update(ticket.id, { status: 'UTILISE' });
         await accesslog_data_1.AccessLogData.create({
             id_ticket: ticket.id,
             id_membre: null,
-            resultat: 'SUCCES',
+            resultat: 'ECHEC',
             id_controller: controllerId,
             date_scan: now,
         });
-        const updatedTicket = await ticket_data_1.TicketData.findByPk(ticket.id);
-        return { valid: true, reason: null, ticket_info: updatedTicket };
+        return { valid: false, reason: 'Statut de ticket incompatible avec l\'entrée', ticket_info: ticket };
     },
 };

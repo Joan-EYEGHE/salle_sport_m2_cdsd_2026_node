@@ -29,7 +29,7 @@ export function startExpireTicketsJob(): void {
     void runExpireTickets().catch((err: unknown) => {
         console.error("[ExpireTickets]", err);
     });
-    cron.schedule("0 */4 * * *", () => {
+    cron.schedule("0 */1 * * *", () => {
         void runExpireTickets().catch((err: unknown) => {
             console.error("[ExpireTickets]", err);
         });

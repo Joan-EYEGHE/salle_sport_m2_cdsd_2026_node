@@ -29,7 +29,7 @@ function startExpireTicketsJob() {
     void runExpireTickets().catch((err) => {
         console.error("[ExpireTickets]", err);
     });
-    node_cron_1.default.schedule("0 */4 * * *", () => {
+    node_cron_1.default.schedule("0 */1 * * *", () => {
         void runExpireTickets().catch((err) => {
             console.error("[ExpireTickets]", err);
         });

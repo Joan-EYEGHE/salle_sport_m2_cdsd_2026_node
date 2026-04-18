@@ -57,10 +57,10 @@ export const BatchService = {
             }, { transaction: t });
 
             const date_expiration = new Date(Date.now() + 24 * 60 * 60 * 1000);
-            const prefix = buildDatePrefix(new Date());
+            const datePart = buildDatePrefix(new Date());
 
             for (let i = 0; i < input.quantite; i++) {
-                const code_ticket = `${prefix}-${String(i + 1).padStart(3, '0')}`;
+                const code_ticket = `${datePart}-B${batch.id}-${String(i + 1).padStart(3, '0')}`;
                 await Ticket.create({
                     id_batch: batch.id!,
                     qr_code: randomUUID(),
