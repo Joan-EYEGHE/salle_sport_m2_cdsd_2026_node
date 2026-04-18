@@ -18,7 +18,7 @@ router.param("id", async (req: AuthenticatedRequest, res: Response, next: NextFu
     }
     const user = await UserService.findById(userId);
     if (!user) return res.status(400).json({ error: "user not found" });
-    req.user = user as any;
+    req.targetUser = user as any;
     next();
 })
 
@@ -38,6 +38,18 @@ router.post('/', UserController.create);
  * get one user by id
  */
 router.get('/:id', requireRole("ADMIN", "CASHIER"), UserController.findOneById as any);
+/**
+ * PUT /api/users/:id
+ * Modifier un utilisateur (admin uniquement)
+ */
+router.put('/:id', requireRole('ADMIN'), UserController.update as any);
+
+/**
+ * DELETE /api/users/:id
+ * Soft-delete un utilisateur (admin uniquement)
+ */
+router.delete('/:id', requireRole('ADMIN'), UserController.destroy as any);
+
 /**
  * GET /api/users/:id/tickets
  * get all the tickets generate by a user

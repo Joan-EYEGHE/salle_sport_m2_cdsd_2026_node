@@ -17,7 +17,7 @@ export const UserController = {
 
     },
     findOneById(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-        const user = req.user;
+        const user = req.targetUser;
         res.status(200).json({
             user
         })
@@ -43,6 +43,23 @@ export const UserController = {
         }
     },
     stats() { },
-    update() { },
-    changePassword() { },
+    async update(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.params.id);
+            const updated = await UserService.update(id, req.body);
+            res.json({ success: true, data: updated });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    async destroy(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+        try {
+            const id = Number(req.params.id);
+            await UserService.softDelete(id);
+            res.json({ success: true });
+        } catch (error) {
+            next(error);
+        }
+    },
 }

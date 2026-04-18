@@ -18,4 +18,5 @@ export interface AuthenticatedRequest extends Request {
         email: string,
         role: Role,
     } | null
+    targetUser?: any;
 }
