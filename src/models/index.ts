@@ -21,8 +21,8 @@ initAccessLogModel(sequelize);
 
 // --- Associations ---
 
-Member.hasMany(Subscription, { foreignKey: 'id_membre' });
-Subscription.belongsTo(Member, { foreignKey: 'id_membre' });
+Member.hasMany(Subscription, { foreignKey: 'id_membre', as: 'subscriptions' });
+Subscription.belongsTo(Member, { foreignKey: 'id_membre', as: 'member' });
 
 Activity.hasMany(Subscription, { foreignKey: 'id_activity' });
 Subscription.belongsTo(Activity, { foreignKey: 'id_activity' });

@@ -145,7 +145,7 @@ export const SubscriptionService = {
 
         const full = await Subscription.findByPk(subscriptionRow.id, {
             include: [
-                { model: Member, required: false },
+                { model: Member, as: 'member', required: false },
                 { model: Activity, required: false },
             ],
         });
@@ -170,7 +170,7 @@ export const SubscriptionService = {
         return Subscription.findAll({
             where,
             include: [
-                { model: Member, required: false },
+                { model: Member, as: 'member', required: false },
                 { model: Activity, required: false },
             ],
             order: [["createdAt", "DESC"]],
@@ -180,7 +180,7 @@ export const SubscriptionService = {
     async getById(id: number) {
         const sub = await Subscription.findByPk(id, {
             include: [
-                { model: Member, required: false },
+                { model: Member, as: 'member', required: false },
                 { model: Activity, required: false },
             ],
         });
@@ -198,7 +198,7 @@ export const SubscriptionService = {
                 },
             },
             include: [
-                { model: Member, required: false },
+                { model: Member, as: 'member', required: false },
                 { model: Activity, required: false },
             ],
             order: [["date_prochain_paiement", "ASC"]],

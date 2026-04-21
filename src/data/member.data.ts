@@ -6,6 +6,7 @@ export const MemberData = {
         return Member.findAll({
             include: [{
                 model: Subscription,
+                as: 'subscriptions',
                 separate: true,
                 order: [['createdAt', 'DESC']],
                 limit: 1,
@@ -20,6 +21,7 @@ export const MemberData = {
             include: [
                 {
                     model: Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     include: [{ model: Activity }],
@@ -38,6 +40,7 @@ export const MemberData = {
             where: { uuid_qr },
             include: [{
                 model: Subscription,
+                as: 'subscriptions',
                 separate: true,
                 order: [['createdAt', 'DESC']],
                 include: [{ model: Activity }],
@@ -51,6 +54,7 @@ export const MemberData = {
             include: [
                 {
                     model: Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     include: [{ model: Activity }],
@@ -76,6 +80,7 @@ export const MemberData = {
         return Member.findByPk(id, {
             include: [{
                 model: Subscription,
+                as: 'subscriptions',
                 separate: true,
                 order: [['createdAt', 'DESC']],
                 limit: 1,
