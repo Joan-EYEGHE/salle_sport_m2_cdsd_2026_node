@@ -17,6 +17,39 @@ const FORFAIT_PRIX_FIELD = {
     TRIMESTRIEL: 'prix_trimestriel',
     ANNUEL: 'prix_annuel',
 };
+/** Compare une date d'échéance (DATEONLY ou ISO) au jour courant (local), sans piège UTC. */
+function isSubscriptionActiveOnOrAfterToday(dateProchainPaiement) {
+    if (dateProchainPaiement == null)
+        return false;
+    let ymd;
+    if (typeof dateProchainPaiement === 'string') {
+        ymd = dateProchainPaiement.slice(0, 10);
+    }
+    else if (dateProchainPaiement instanceof Date) {
+        const d = dateProchainPaiement;
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        ymd = `${y}-${m}-${day}`;
+    }
+    else {
+        ymd = String(dateProchainPaiement).slice(0, 10);
+    }
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    return ymd >= today;
+}
+function collectSubscriptions(member) {
+    const m = member;
+    const fromGet = typeof m.get === 'function' ? m.get('subscriptions') : undefined;
+    for (const x of [m.subscriptions, m.Subscriptions, fromGet]) {
+        if (Array.isArray(x))
+            return x;
+    }
+    const j = typeof m.toJSON === 'function' ? m.toJSON() : {};
+    const fromJson = j.subscriptions ?? j.Subscriptions ?? [];
+    return Array.isArray(fromJson) ? fromJson : [];
+}
 function addDays(dateStr, days) {
     const [year, month, day] = dateStr.split('-').map(Number);
     const d = new Date(year, month - 1, day);
@@ -80,9 +113,8 @@ exports.MemberService = {
             });
             return { valid: false, reason: 'Membre introuvable', member_info: null };
         }
-        const m = member;
-        const subs = m.subscriptions ?? [];
-        const activeSub = subs.find((s) => new Date(s.date_prochain_paiement) >= new Date());
+        const subs = collectSubscriptions(member);
+        const activeSub = subs.find((s) => isSubscriptionActiveOnOrAfterToday(s.date_prochain_paiement));
         const valid = !!activeSub;
         await accesslog_data_1.AccessLogData.create({
             id_ticket: null,

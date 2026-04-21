@@ -29,8 +29,8 @@ Object.defineProperty(exports, "AccessLog", { enumerable: true, get: function ()
 (0, transaction_model_1.initTransactionModel)(database_1.sequelize);
 (0, accesslog_model_1.initAccessLogModel)(database_1.sequelize);
 // --- Associations ---
-member_model_1.Member.hasMany(subscription_model_1.Subscription, { foreignKey: 'id_membre' });
-subscription_model_1.Subscription.belongsTo(member_model_1.Member, { foreignKey: 'id_membre' });
+member_model_1.Member.hasMany(subscription_model_1.Subscription, { foreignKey: 'id_membre', as: 'subscriptions' });
+subscription_model_1.Subscription.belongsTo(member_model_1.Member, { foreignKey: 'id_membre', as: 'member' });
 activity_model_1.Activity.hasMany(subscription_model_1.Subscription, { foreignKey: 'id_activity' });
 subscription_model_1.Subscription.belongsTo(activity_model_1.Activity, { foreignKey: 'id_activity' });
 activity_model_1.Activity.hasMany(batch_model_1.Batch, { foreignKey: 'id_activity' });

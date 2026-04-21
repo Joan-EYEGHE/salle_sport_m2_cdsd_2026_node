@@ -7,6 +7,7 @@ exports.MemberData = {
         return models_1.Member.findAll({
             include: [{
                     model: models_1.Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     limit: 1,
@@ -20,6 +21,7 @@ exports.MemberData = {
             include: [
                 {
                     model: models_1.Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     include: [{ model: models_1.Activity }],
@@ -37,6 +39,7 @@ exports.MemberData = {
             where: { uuid_qr },
             include: [{
                     model: models_1.Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     include: [{ model: models_1.Activity }],
@@ -49,6 +52,7 @@ exports.MemberData = {
             include: [
                 {
                     model: models_1.Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     include: [{ model: models_1.Activity }],
@@ -71,6 +75,7 @@ exports.MemberData = {
         return models_1.Member.findByPk(id, {
             include: [{
                     model: models_1.Subscription,
+                    as: 'subscriptions',
                     separate: true,
                     order: [['createdAt', 'DESC']],
                     limit: 1,

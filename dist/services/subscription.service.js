@@ -115,7 +115,7 @@ exports.SubscriptionService = {
         });
         const full = await models_1.Subscription.findByPk(subscriptionRow.id, {
             include: [
-                { model: models_1.Member, required: false },
+                { model: models_1.Member, as: 'member', required: false },
                 { model: models_1.Activity, required: false },
             ],
         });
@@ -136,7 +136,7 @@ exports.SubscriptionService = {
         return models_1.Subscription.findAll({
             where,
             include: [
-                { model: models_1.Member, required: false },
+                { model: models_1.Member, as: 'member', required: false },
                 { model: models_1.Activity, required: false },
             ],
             order: [["createdAt", "DESC"]],
@@ -145,7 +145,7 @@ exports.SubscriptionService = {
     async getById(id) {
         const sub = await models_1.Subscription.findByPk(id, {
             include: [
-                { model: models_1.Member, required: false },
+                { model: models_1.Member, as: 'member', required: false },
                 { model: models_1.Activity, required: false },
             ],
         });
@@ -163,7 +163,7 @@ exports.SubscriptionService = {
                 },
             },
             include: [
-                { model: models_1.Member, required: false },
+                { model: models_1.Member, as: 'member', required: false },
                 { model: models_1.Activity, required: false },
             ],
             order: [["date_prochain_paiement", "ASC"]],
