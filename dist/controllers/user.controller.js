@@ -16,7 +16,7 @@ exports.UserController = {
         }
     },
     findOneById(req, res, next) {
-        const user = req.user;
+        const user = req.targetUser;
         res.status(200).json({
             user
         });
@@ -43,6 +43,24 @@ exports.UserController = {
         }
     },
     stats() { },
-    update() { },
-    changePassword() { },
+    async update(req, res, next) {
+        try {
+            const id = Number(req.params.id);
+            const updated = await user_service_1.UserService.update(id, req.body);
+            res.json({ success: true, data: updated });
+        }
+        catch (error) {
+            next(error);
+        }
+    },
+    async destroy(req, res, next) {
+        try {
+            const id = Number(req.params.id);
+            await user_service_1.UserService.softDelete(id);
+            res.json({ success: true });
+        }
+        catch (error) {
+            next(error);
+        }
+    },
 };

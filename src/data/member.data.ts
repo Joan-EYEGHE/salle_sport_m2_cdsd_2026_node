@@ -34,7 +34,15 @@ export const MemberData = {
     },
 
     findByQr(uuid_qr: string) {
-        return Member.findOne({ where: { uuid_qr } });
+        return Member.findOne({
+            where: { uuid_qr },
+            include: [{
+                model: Subscription,
+                separate: true,
+                order: [['createdAt', 'DESC']],
+                include: [{ model: Activity }],
+            }],
+        });
     },
 
     findBySlug(slug: string) {

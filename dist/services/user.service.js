@@ -71,4 +71,26 @@ exports.UserService = {
     async findById(id) {
         return models_1.User.unscoped().findByPk(id, { attributes: { exclude: ['passwordHash'] } });
     },
+    async update(id, input) {
+        const user = await models_1.User.unscoped().findByPk(id);
+        if (!user)
+            throw Object.assign(new Error('User not found'), { status: 404 });
+        if (input.email) {
+            const email = normalizeEmail(input.email);
+            const conflict = await models_1.User.unscoped().findOne({ where: { email } });
+            if (conflict && conflict.id !== id) {
+                throw Object.assign(new Error('Email already exists!'), { status: 400 });
+            }
+            input.email = email;
+        }
+        await user.update(input);
+        return models_1.User.unscoped().findByPk(id, { attributes: { exclude: ['passwordHash'] } });
+    },
+    async softDelete(id) {
+        const [affectedRows] = await models_1.User.unscoped().update({ active: false }, { where: { id } });
+        if (affectedRows === 0) {
+            throw Object.assign(new Error('User not found'), { status: 404 });
+        }
+        return { success: true };
+    },
 };

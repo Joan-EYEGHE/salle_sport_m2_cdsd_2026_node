@@ -8,6 +8,7 @@ const router = (0, express_1.Router)();
 router.use(auth_middleware_1.authMiddleware);
 // Static / specific paths must come before /:id
 router.get('/qr/:uuid', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.findByQr);
+router.post('/validate-qr', (0, role_middleware_1.requireRole)('ADMIN', 'CONTROLLER'), member_controller_1.MemberController.validateQr);
 router.post('/subscribe', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.subscribe);
 router.get('/', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.list);
 router.post('/', (0, role_middleware_1.requireRole)('ADMIN', 'CASHIER'), member_controller_1.MemberController.create);

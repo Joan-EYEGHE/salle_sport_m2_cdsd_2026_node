@@ -33,7 +33,15 @@ exports.MemberData = {
         });
     },
     findByQr(uuid_qr) {
-        return models_1.Member.findOne({ where: { uuid_qr } });
+        return models_1.Member.findOne({
+            where: { uuid_qr },
+            include: [{
+                    model: models_1.Subscription,
+                    separate: true,
+                    order: [['createdAt', 'DESC']],
+                    include: [{ model: models_1.Activity }],
+                }],
+        });
     },
     findBySlug(slug) {
         return models_1.Member.findOne({

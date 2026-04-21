@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MemberService = void 0;
 const models_1 = require("../models");
+const accesslog_data_1 = require("../data/accesslog.data");
 const member_data_1 = require("../data/member.data");
 const transaction_data_1 = require("../data/transaction.data");
 const FORFAIT_DAYS = {
@@ -66,6 +67,54 @@ exports.MemberService = {
         if (!member)
             throw Object.assign(new Error('Member not found'), { status: 404 });
         return member;
+    },
+    async validateQr(uuid_qr, controllerId) {
+        const member = await member_data_1.MemberData.findByQr(uuid_qr);
+        if (!member) {
+            await accesslog_data_1.AccessLogData.create({
+                id_ticket: null,
+                id_membre: null,
+                resultat: 'ECHEC',
+                id_controller: controllerId,
+                date_scan: new Date(),
+            });
+            return { valid: false, reason: 'Membre introuvable', member_info: null };
+        }
+        const m = member;
+        const subs = m.subscriptions ?? [];
+        const activeSub = subs.find((s) => new Date(s.date_prochain_paiement) >= new Date());
+        const valid = !!activeSub;
+        await accesslog_data_1.AccessLogData.create({
+            id_ticket: null,
+            id_membre: member.id,
+            resultat: valid ? 'SUCCES' : 'ECHEC',
+            id_controller: controllerId,
+            date_scan: new Date(),
+        });
+        const act = activeSub
+            ? (activeSub.activity ?? activeSub.Activity)
+            : undefined;
+        const activityNom = act && typeof act.nom === 'string' ? { nom: act.nom } : null;
+        return {
+            valid,
+            reason: valid ? null : 'Aucun abonnement actif',
+            member_info: {
+                id: member.id,
+                nom: member.nom,
+                prenom: member.prenom,
+                uuid_qr: member.uuid_qr,
+                subscription: activeSub
+                    ? {
+                        type_forfait: activeSub.type_forfait,
+                        date_prochain_paiement: (() => {
+                            const d = activeSub.date_prochain_paiement;
+                            return d instanceof Date ? d.toISOString() : String(d);
+                        })(),
+                        activity: activityNom,
+                    }
+                    : null,
+            },
+        };
     },
     async update(idOrSlug, input) {
         const isSlug = isNaN(Number(idOrSlug));

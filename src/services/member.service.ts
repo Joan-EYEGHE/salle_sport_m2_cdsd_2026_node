@@ -1,4 +1,5 @@
 import { Activity, Member, sequelize, Subscription, Transaction } from "../models";
+import { AccessLogData } from "../data/accesslog.data";
 import { MemberData } from "../data/member.data";
 import { TransactionData } from "../data/transaction.data";
 import { TypeForfait } from "../models/subscription.model";
@@ -73,6 +74,63 @@ export const MemberService = {
         const member = await MemberData.findByQr(uuid);
         if (!member) throw Object.assign(new Error('Member not found'), { status: 404 });
         return member;
+    },
+
+    async validateQr(uuid_qr: string, controllerId: number) {
+        const member = await MemberData.findByQr(uuid_qr);
+
+        if (!member) {
+            await AccessLogData.create({
+                id_ticket: null,
+                id_membre: null,
+                resultat: 'ECHEC',
+                id_controller: controllerId,
+                date_scan: new Date(),
+            });
+            return { valid: false, reason: 'Membre introuvable', member_info: null };
+        }
+
+        const m = member as Member & { subscriptions?: Subscription[] };
+        const subs = m.subscriptions ?? [];
+        const activeSub = subs.find(
+            (s: Subscription) => new Date(s.date_prochain_paiement) >= new Date(),
+        );
+
+        const valid = !!activeSub;
+
+        await AccessLogData.create({
+            id_ticket: null,
+            id_membre: member.id!,
+            resultat: valid ? 'SUCCES' : 'ECHEC',
+            id_controller: controllerId,
+            date_scan: new Date(),
+        });
+
+        const act = activeSub
+            ? ((activeSub as any).activity ?? (activeSub as any).Activity) as Activity | undefined
+            : undefined;
+        const activityNom = act && typeof (act as any).nom === 'string' ? { nom: (act as any).nom as string } : null;
+
+        return {
+            valid,
+            reason: valid ? null : 'Aucun abonnement actif',
+            member_info: {
+                id: member.id,
+                nom: member.nom,
+                prenom: member.prenom,
+                uuid_qr: member.uuid_qr,
+                subscription: activeSub
+                    ? {
+                        type_forfait: activeSub.type_forfait,
+                        date_prochain_paiement: (() => {
+                            const d = activeSub.date_prochain_paiement as unknown;
+                            return d instanceof Date ? d.toISOString() : String(d);
+                        })(),
+                        activity: activityNom,
+                    }
+                    : null,
+            },
+        };
     },
 
     async update(idOrSlug: string | number, input: any) {

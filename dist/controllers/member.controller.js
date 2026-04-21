@@ -39,6 +39,19 @@ exports.MemberController = {
             next(error);
         }
     },
+    async validateQr(req, res, next) {
+        try {
+            const { code } = req.body;
+            if (!code) {
+                return res.status(400).json({ success: false, message: 'Le champ code est requis' });
+            }
+            const result = await member_service_1.MemberService.validateQr(code, req.user.id);
+            res.json({ success: true, ...result });
+        }
+        catch (error) {
+            next(error);
+        }
+    },
     async update(req, res, next) {
         try {
             const data = await member_service_1.MemberService.update(req.params.id, req.body);

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { MemberService } from "../services/member.service";
+import { AuthenticatedRequest } from "../utils/interfaces";
 
 export const MemberController = {
     async list(req: Request, res: Response, next: NextFunction) {
@@ -33,6 +34,19 @@ export const MemberController = {
         try {
             const data = await MemberService.findByQr(req.params.uuid as string);
             res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    async validateQr(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+        try {
+            const { code } = req.body;
+            if (!code) {
+                return res.status(400).json({ success: false, message: 'Le champ code est requis' });
+            }
+            const result = await MemberService.validateQr(code, req.user!.id);
+            res.json({ success: true, ...result });
         } catch (error) {
             next(error);
         }
