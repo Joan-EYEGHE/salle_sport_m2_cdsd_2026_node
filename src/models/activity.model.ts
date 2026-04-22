@@ -2,7 +2,8 @@ import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, 
 import slugify from 'slugify';
 import { randomUUID } from 'crypto';
 
-function generateActivitySlug(nom: string): string {
+/** Exporté pour backfill côté service (lignes sans slug) — même logique que les hooks. */
+export function generateActivitySlug(nom: string): string {
     const base = slugify(nom, { lower: true, strict: true });
     const suffix = randomUUID().replace(/-/g, '').substring(0, 4);
     return `${base}-${suffix}`;

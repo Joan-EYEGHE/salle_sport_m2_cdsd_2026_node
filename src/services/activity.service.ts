@@ -1,8 +1,15 @@
 import { Activity, Batch, Ticket } from "../models";
 import { Op } from "sequelize";
 import { ActivityData } from "../data/activity.data";
+import { generateActivitySlug } from "../models/activity.model";
 
 type TarifEntry = { forfait: string; prix: number };
+
+/** Seuls les segments entièrement numériques sont des id ; le reste est un slug (évite isNaN(Number)). */
+function isNumericIdParam(idOrSlug: string | number): boolean {
+    const t = String(idOrSlug).trim();
+    return t.length > 0 && /^\d+$/.test(t);
+}
 
 function computeTarifsDisponibles(activity: Activity): TarifEntry[] {
     const toNum = (v: any) => parseFloat(v as any) || 0;
@@ -24,20 +31,42 @@ function computeTarifsDisponibles(activity: Activity): TarifEntry[] {
         .filter(({ prix }) => prix > 0);
 }
 
+async function ensureActivitySlugRow(activity: Activity): Promise<Activity> {
+    const j = activity.toJSON() as { id?: number; nom?: string; slug?: string | null };
+    if (j.slug?.trim() || !j.nom?.trim()) return activity;
+    const id = j.id;
+    if (id == null) return activity;
+    let slug = generateActivitySlug(String(j.nom));
+    try {
+        await ActivityData.update(id, { slug });
+    } catch {
+        slug = generateActivitySlug(`${String(j.nom)}-${id}`);
+        await ActivityData.update(id, { slug });
+    }
+    const refreshed = await ActivityData.findByPk(id);
+    return refreshed ?? activity;
+}
+
 export const ActivityService = {
     async list(query: { status?: string }) {
         const where: any = {};
         if (query.status === 'true') where.status = true;
         const rows = await ActivityData.findAll(where);
-        return rows.map(a => ({ ...a.toJSON(), tarifs_disponibles: computeTarifsDisponibles(a) }));
+        const mapped: Array<Record<string, unknown> & { tarifs_disponibles: TarifEntry[] }> = [];
+        for (const a of rows) {
+            const fixed = await ensureActivitySlugRow(a);
+            mapped.push({ ...fixed.toJSON(), tarifs_disponibles: computeTarifsDisponibles(fixed) });
+        }
+        return mapped;
     },
 
     async getById(idOrSlug: string | number) {
-        const isSlug = isNaN(Number(idOrSlug));
-        const activity = isSlug
-            ? await ActivityData.findBySlug(String(idOrSlug))
-            : await ActivityData.findByPk(Number(idOrSlug));
+        const raw = String(idOrSlug).trim();
+        let activity = isNumericIdParam(raw)
+            ? await ActivityData.findByPk(Number(raw))
+            : await ActivityData.findBySlug(raw);
         if (!activity) throw Object.assign(new Error('Activity not found'), { status: 404 });
+        activity = await ensureActivitySlugRow(activity);
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
     },
 
@@ -61,10 +90,10 @@ export const ActivityService = {
     },
 
     async update(idOrSlug: string | number, input: any) {
-        const isSlug = isNaN(Number(idOrSlug));
-        const existing = isSlug
-            ? await ActivityData.findBySlug(String(idOrSlug))
-            : await ActivityData.findByPk(Number(idOrSlug));
+        const raw = String(idOrSlug).trim();
+        const existing = isNumericIdParam(raw)
+            ? await ActivityData.findByPk(Number(raw))
+            : await ActivityData.findBySlug(raw);
         if (!existing) throw Object.assign(new Error('Activity not found'), { status: 404 });
         const id = existing.id!;
 
@@ -84,10 +113,10 @@ export const ActivityService = {
     },
 
     async softDelete(idOrSlug: string | number) {
-        const isSlug = isNaN(Number(idOrSlug));
-        const activity = isSlug
-            ? await ActivityData.findBySlug(String(idOrSlug))
-            : await ActivityData.findByPk(Number(idOrSlug));
+        const raw = String(idOrSlug).trim();
+        const activity = isNumericIdParam(raw)
+            ? await ActivityData.findByPk(Number(raw))
+            : await ActivityData.findBySlug(raw);
         if (!activity) throw Object.assign(new Error('Activity not found'), { status: 404 });
         const id = activity.id!;
 

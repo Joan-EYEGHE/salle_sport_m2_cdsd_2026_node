@@ -11,7 +11,7 @@ export const ActivityData = {
     },
 
     findBySlug(slug: string) {
-        return Activity.findOne({ where: { slug } });
+        return Activity.findOne({ where: { slug: slug.trim() } });
     },
 
     create(values: Partial<Activity['_creationAttributes']>) {
@@ -19,6 +19,6 @@ export const ActivityData = {
     },
 
     update(id: number, values: Partial<Activity['_creationAttributes']>) {
-        return Activity.update(values as any, { where: { id } });
+        return Activity.update(values as any, { where: { id }, individualHooks: true });
     },
 };
