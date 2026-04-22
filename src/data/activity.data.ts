@@ -10,6 +10,10 @@ export const ActivityData = {
         return Activity.findByPk(id);
     },
 
+    findBySlug(slug: string) {
+        return Activity.findOne({ where: { slug } });
+    },
+
     create(values: Partial<Activity['_creationAttributes']>) {
         return Activity.create(values as any);
     },

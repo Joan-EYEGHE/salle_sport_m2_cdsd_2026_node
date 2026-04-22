@@ -14,7 +14,7 @@ exports.ActivityController = {
     },
     async getById(req, res, next) {
         try {
-            const data = await activity_service_1.ActivityService.getById(Number(req.params.id));
+            const data = await activity_service_1.ActivityService.getById(req.params.id);
             res.json({ success: true, data });
         }
         catch (error) {
@@ -32,7 +32,7 @@ exports.ActivityController = {
     },
     async update(req, res, next) {
         try {
-            const data = await activity_service_1.ActivityService.update(Number(req.params.id), req.body);
+            const data = await activity_service_1.ActivityService.update(req.params.id, req.body);
             res.json({ success: true, data });
         }
         catch (error) {
@@ -41,7 +41,7 @@ exports.ActivityController = {
     },
     async softDelete(req, res, next) {
         try {
-            const data = await activity_service_1.ActivityService.softDelete(Number(req.params.id));
+            const data = await activity_service_1.ActivityService.softDelete(req.params.id);
             res.json({ success: true, data });
         }
         catch (error) {

@@ -1,8 +1,17 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
+import slugify from 'slugify';
+import { randomUUID } from 'crypto';
+
+function generateActivitySlug(nom: string): string {
+    const base = slugify(nom, { lower: true, strict: true });
+    const suffix = randomUUID().replace(/-/g, '').substring(0, 4);
+    return `${base}-${suffix}`;
+}
 
 export class Activity extends Model<InferAttributes<Activity>, InferCreationAttributes<Activity>> {
     declare id: CreationOptional<number>;
     declare nom: string;
+    declare slug: CreationOptional<string>;
     declare status: CreationOptional<boolean>;
     declare frais_inscription: CreationOptional<number>;
     declare prix_ticket: CreationOptional<number>;
@@ -26,6 +35,11 @@ export const initActivityModel = (sequelize: Sequelize) => {
         nom: {
             type: DataTypes.STRING,
             allowNull: false,
+        },
+        slug: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true,
         },
         status: {
             type: DataTypes.BOOLEAN,
@@ -70,6 +84,18 @@ export const initActivityModel = (sequelize: Sequelize) => {
         timestamps: true,
         defaultScope: {
             where: { active: true },
+        },
+        hooks: {
+            beforeCreate(activity) {
+                if (!activity.slug) {
+                    activity.slug = generateActivitySlug(activity.nom);
+                }
+            },
+            beforeUpdate(activity) {
+                if (activity.changed('nom')) {
+                    activity.slug = generateActivitySlug(activity.nom);
+                }
+            },
         },
     });
 };

@@ -32,8 +32,11 @@ export const ActivityService = {
         return rows.map(a => ({ ...a.toJSON(), tarifs_disponibles: computeTarifsDisponibles(a) }));
     },
 
-    async getById(id: number) {
-        const activity = await ActivityData.findByPk(id);
+    async getById(idOrSlug: string | number) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const activity = isSlug
+            ? await ActivityData.findBySlug(String(idOrSlug))
+            : await ActivityData.findByPk(Number(idOrSlug));
         if (!activity) throw Object.assign(new Error('Activity not found'), { status: 404 });
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
     },
@@ -57,9 +60,13 @@ export const ActivityService = {
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
     },
 
-    async update(id: number, input: any) {
-        const activity = await ActivityData.findByPk(id);
-        if (!activity) throw Object.assign(new Error('Activity not found'), { status: 404 });
+    async update(idOrSlug: string | number, input: any) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const existing = isSlug
+            ? await ActivityData.findBySlug(String(idOrSlug))
+            : await ActivityData.findByPk(Number(idOrSlug));
+        if (!existing) throw Object.assign(new Error('Activity not found'), { status: 404 });
+        const id = existing.id!;
 
         const allowed = ['nom','status','frais_inscription','prix_ticket','prix_hebdomadaire',
                          'prix_mensuel','prix_trimestriel','prix_annuel','isMonthlyOnly'];
@@ -76,9 +83,13 @@ export const ActivityService = {
         return { ...updated.toJSON(), tarifs_disponibles: computeTarifsDisponibles(updated) };
     },
 
-    async softDelete(id: number) {
-        const activity = await ActivityData.findByPk(id);
+    async softDelete(idOrSlug: string | number) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const activity = isSlug
+            ? await ActivityData.findBySlug(String(idOrSlug))
+            : await ActivityData.findByPk(Number(idOrSlug));
         if (!activity) throw Object.assign(new Error('Activity not found'), { status: 404 });
+        const id = activity.id!;
 
         const batches = await Batch.unscoped().findAll({
             where: { id_activity: id },

@@ -28,8 +28,11 @@ exports.ActivityService = {
         const rows = await activity_data_1.ActivityData.findAll(where);
         return rows.map(a => ({ ...a.toJSON(), tarifs_disponibles: computeTarifsDisponibles(a) }));
     },
-    async getById(id) {
-        const activity = await activity_data_1.ActivityData.findByPk(id);
+    async getById(idOrSlug) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const activity = isSlug
+            ? await activity_data_1.ActivityData.findBySlug(String(idOrSlug))
+            : await activity_data_1.ActivityData.findByPk(Number(idOrSlug));
         if (!activity)
             throw Object.assign(new Error('Activity not found'), { status: 404 });
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
@@ -52,10 +55,14 @@ exports.ActivityService = {
         });
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
     },
-    async update(id, input) {
-        const activity = await activity_data_1.ActivityData.findByPk(id);
-        if (!activity)
+    async update(idOrSlug, input) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const existing = isSlug
+            ? await activity_data_1.ActivityData.findBySlug(String(idOrSlug))
+            : await activity_data_1.ActivityData.findByPk(Number(idOrSlug));
+        if (!existing)
             throw Object.assign(new Error('Activity not found'), { status: 404 });
+        const id = existing.id;
         const allowed = ['nom', 'status', 'frais_inscription', 'prix_ticket', 'prix_hebdomadaire',
             'prix_mensuel', 'prix_trimestriel', 'prix_annuel', 'isMonthlyOnly'];
         const values = {};
@@ -70,10 +77,14 @@ exports.ActivityService = {
         const updated = await activity_data_1.ActivityData.findByPk(id);
         return { ...updated.toJSON(), tarifs_disponibles: computeTarifsDisponibles(updated) };
     },
-    async softDelete(id) {
-        const activity = await activity_data_1.ActivityData.findByPk(id);
+    async softDelete(idOrSlug) {
+        const isSlug = isNaN(Number(idOrSlug));
+        const activity = isSlug
+            ? await activity_data_1.ActivityData.findBySlug(String(idOrSlug))
+            : await activity_data_1.ActivityData.findByPk(Number(idOrSlug));
         if (!activity)
             throw Object.assign(new Error('Activity not found'), { status: 404 });
+        const id = activity.id;
         const batches = await models_1.Batch.unscoped().findAll({
             where: { id_activity: id },
             attributes: ['id'],

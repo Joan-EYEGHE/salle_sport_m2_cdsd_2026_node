@@ -9,6 +9,9 @@ exports.ActivityData = {
     findByPk(id) {
         return models_1.Activity.findByPk(id);
     },
+    findBySlug(slug) {
+        return models_1.Activity.findOne({ where: { slug } });
+    },
     create(values) {
         return models_1.Activity.create(values);
     },

@@ -13,7 +13,7 @@ export const ActivityController = {
 
     async getById(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await ActivityService.getById(Number(req.params.id));
+            const data = await ActivityService.getById(req.params.id as string);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
@@ -31,7 +31,7 @@ export const ActivityController = {
 
     async update(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await ActivityService.update(Number(req.params.id), req.body);
+            const data = await ActivityService.update(req.params.id as string, req.body);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
@@ -40,7 +40,7 @@ export const ActivityController = {
 
     async softDelete(req: Request, res: Response, next: NextFunction) {
         try {
-            const data = await ActivityService.softDelete(Number(req.params.id));
+            const data = await ActivityService.softDelete(req.params.id as string);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
