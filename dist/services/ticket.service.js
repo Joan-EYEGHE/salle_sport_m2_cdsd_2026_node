@@ -28,8 +28,11 @@ exports.TicketService = {
         const updated = await ticket_data_1.TicketData.findByPk(id);
         // Générer la transaction REVENU
         const activityNom = updated?.batch?.activity?.nom ?? 'Ticket';
-        const prix = Number(updated?.prix_unitaire ?? 0);
         const codeTicket = updated?.code_ticket ?? String(id);
+        const prix = Number(updated?.prix_unitaire
+            ?? updated?.batch?.prix_unitaire_applique
+            ?? 0);
+        console.log('[sell] prix calculé:', prix, '| code:', codeTicket);
         await transaction_data_1.TransactionData.create({
             type: 'REVENU',
             libelle: `Vente ticket ${codeTicket} — ${activityNom}`,

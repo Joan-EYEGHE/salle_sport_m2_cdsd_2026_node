@@ -20,6 +20,11 @@ const initTransactionModel = (sequelize) => {
             type: sequelize_1.DataTypes.ENUM('REVENU', 'DEPENSE'),
             allowNull: false,
         },
+        methode_paiement: {
+            type: sequelize_1.DataTypes.ENUM('CASH', 'WAVE', 'ORANGE'),
+            allowNull: true,
+            defaultValue: 'CASH',
+        },
         libelle: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,

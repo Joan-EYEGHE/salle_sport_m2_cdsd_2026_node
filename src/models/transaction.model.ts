@@ -1,11 +1,13 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
 
 export type TypeTransaction = 'REVENU' | 'DEPENSE';
+export type MethodePaiement = 'CASH' | 'WAVE' | 'ORANGE';
 
 export class Transaction extends Model<InferAttributes<Transaction>, InferCreationAttributes<Transaction>> {
     declare id: CreationOptional<number>;
     declare montant: number;
     declare type: TypeTransaction;
+    declare methode_paiement: CreationOptional<MethodePaiement | null>;
     declare libelle: string;
     declare date: CreationOptional<Date>;
     declare id_membre: CreationOptional<number | null>;
@@ -28,6 +30,11 @@ export const initTransactionModel = (sequelize: Sequelize) => {
         type: {
             type: DataTypes.ENUM('REVENU', 'DEPENSE'),
             allowNull: false,
+        },
+        methode_paiement: {
+            type: DataTypes.ENUM('CASH', 'WAVE', 'ORANGE'),
+            allowNull: true,
+            defaultValue: 'CASH',
         },
         libelle: {
             type: DataTypes.STRING,

@@ -30,8 +30,12 @@ export const TicketService = {
 
         // Générer la transaction REVENU
         const activityNom = updated?.batch?.activity?.nom ?? 'Ticket';
-        const prix = Number(updated?.prix_unitaire ?? 0);
         const codeTicket = updated?.code_ticket ?? String(id);
+        const prix = Number(
+            updated?.prix_unitaire
+            ?? updated?.batch?.prix_unitaire_applique
+            ?? 0
+        );
 
         await TransactionData.create({
             type: 'REVENU',

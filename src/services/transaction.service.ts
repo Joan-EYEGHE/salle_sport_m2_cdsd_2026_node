@@ -14,6 +14,7 @@ type CreateManualInput = {
     libelle: string;
     id_membre?: number;
     date?: string;
+    methode_paiement?: 'CASH' | 'WAVE' | 'ORANGE';
 };
 
 export const TransactionService = {
@@ -42,12 +43,17 @@ export const TransactionService = {
         if (!input.libelle?.trim()) {
             throw Object.assign(new Error('libelle est requis'), { status: 400 });
         }
+        const mp = input.methode_paiement;
+        if (mp != null && mp !== 'CASH' && mp !== 'WAVE' && mp !== 'ORANGE') {
+            throw Object.assign(new Error('methode_paiement invalide'), { status: 400 });
+        }
         return TransactionData.create({
             montant: Number(input.montant),
             type: input.type,
             libelle: input.libelle.trim(),
             id_membre: input.id_membre ?? null,
             date: input.date ? new Date(input.date) : new Date(),
+            methode_paiement: mp ?? 'CASH',
         });
     },
 
