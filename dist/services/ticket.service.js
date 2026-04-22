@@ -26,20 +26,27 @@ exports.TicketService = {
         }
         await ticket_data_1.TicketData.update(id, { status: 'VENDU' });
         const updated = await ticket_data_1.TicketData.findByPk(id);
-        // Générer la transaction REVENU
-        const activityNom = updated?.batch?.activity?.nom ?? 'Ticket';
-        const codeTicket = updated?.code_ticket ?? String(id);
-        const prix = Number(updated?.prix_unitaire
-            ?? updated?.batch?.prix_unitaire_applique
+        // Générer la transaction REVENU (JSON Sequelize : Batch / Activity en PascalCase)
+        const raw = updated;
+        const batch = raw?.batch ?? raw?.Batch;
+        const activity = batch?.activity ?? batch?.Activity;
+        const activityNom = activity?.nom ?? 'Ticket';
+        const prix = Number(raw?.prix_unitaire
+            ?? batch?.prix_unitaire_applique
             ?? 0);
-        console.log('[sell] prix calculé:', prix, '| code:', codeTicket);
-        await transaction_data_1.TransactionData.create({
-            type: 'REVENU',
-            libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
-            montant: prix,
-            id_membre: null,
-            date: new Date(),
-        });
+        const codeTicket = updated?.code_ticket ?? String(id);
+        try {
+            await transaction_data_1.TransactionData.create({
+                type: 'REVENU',
+                libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
+                montant: prix,
+                id_membre: null,
+                date: new Date(),
+            });
+        }
+        catch {
+            // On ne bloque pas la vente si la transaction échoue
+        }
         return updated;
     },
     async validate(code, controllerId) {
