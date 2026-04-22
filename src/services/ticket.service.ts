@@ -35,21 +35,18 @@ export const TicketService = {
         const prix = Number(raw?.prix_unitaire ?? batch?.prix_unitaire_applique ?? 0);
         const codeTicket = updated?.code_ticket ?? String(id);
 
-        const txResult = await TransactionData.create({
-            type: 'REVENU',
-            libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
-            montant: prix,
-            id_membre: null,
-            date: new Date(),
-            methode_paiement: 'CASH',
-        });
-        console.log('=== TX CRÉÉE ===', JSON.stringify({
-            id: txResult?.id,
-            montant: txResult?.montant,
-            type: txResult?.type,
-        }));
-
-        // PAS de try/catch — laisser remonter toute erreur
+        try {
+            await TransactionData.create({
+                type: 'REVENU',
+                libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
+                montant: prix,
+                id_membre: null,
+                date: new Date(),
+                methode_paiement: 'CASH',
+            });
+        } catch {
+            // Ne bloque pas la vente
+        }
 
         return updated;
     },
