@@ -4,6 +4,12 @@ exports.ActivityService = void 0;
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
 const activity_data_1 = require("../data/activity.data");
+const activity_model_1 = require("../models/activity.model");
+/** Seuls les segments entièrement numériques sont des id ; le reste est un slug (évite isNaN(Number)). */
+function isNumericIdParam(idOrSlug) {
+    const t = String(idOrSlug).trim();
+    return t.length > 0 && /^\d+$/.test(t);
+}
 function computeTarifsDisponibles(activity) {
     const toNum = (v) => parseFloat(v) || 0;
     if (activity.isMonthlyOnly) {
@@ -20,21 +26,45 @@ function computeTarifsDisponibles(activity) {
         .map(({ forfait, field }) => ({ forfait, prix: toNum(activity[field]) }))
         .filter(({ prix }) => prix > 0);
 }
+async function ensureActivitySlugRow(activity) {
+    const j = activity.toJSON();
+    if (j.slug?.trim() || !j.nom?.trim())
+        return activity;
+    const id = j.id;
+    if (id == null)
+        return activity;
+    let slug = (0, activity_model_1.generateActivitySlug)(String(j.nom));
+    try {
+        await activity_data_1.ActivityData.update(id, { slug });
+    }
+    catch {
+        slug = (0, activity_model_1.generateActivitySlug)(`${String(j.nom)}-${id}`);
+        await activity_data_1.ActivityData.update(id, { slug });
+    }
+    const refreshed = await activity_data_1.ActivityData.findByPk(id);
+    return refreshed ?? activity;
+}
 exports.ActivityService = {
     async list(query) {
         const where = {};
         if (query.status === 'true')
             where.status = true;
         const rows = await activity_data_1.ActivityData.findAll(where);
-        return rows.map(a => ({ ...a.toJSON(), tarifs_disponibles: computeTarifsDisponibles(a) }));
+        const mapped = [];
+        for (const a of rows) {
+            const fixed = await ensureActivitySlugRow(a);
+            mapped.push({ ...fixed.toJSON(), tarifs_disponibles: computeTarifsDisponibles(fixed) });
+        }
+        return mapped;
     },
     async getById(idOrSlug) {
-        const isSlug = isNaN(Number(idOrSlug));
-        const activity = isSlug
-            ? await activity_data_1.ActivityData.findBySlug(String(idOrSlug))
-            : await activity_data_1.ActivityData.findByPk(Number(idOrSlug));
+        const raw = String(idOrSlug).trim();
+        let activity = isNumericIdParam(raw)
+            ? await activity_data_1.ActivityData.findByPk(Number(raw))
+            : await activity_data_1.ActivityData.findBySlug(raw);
         if (!activity)
             throw Object.assign(new Error('Activity not found'), { status: 404 });
+        activity = await ensureActivitySlugRow(activity);
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
     },
     async create(input) {
@@ -56,10 +86,10 @@ exports.ActivityService = {
         return { ...activity.toJSON(), tarifs_disponibles: computeTarifsDisponibles(activity) };
     },
     async update(idOrSlug, input) {
-        const isSlug = isNaN(Number(idOrSlug));
-        const existing = isSlug
-            ? await activity_data_1.ActivityData.findBySlug(String(idOrSlug))
-            : await activity_data_1.ActivityData.findByPk(Number(idOrSlug));
+        const raw = String(idOrSlug).trim();
+        const existing = isNumericIdParam(raw)
+            ? await activity_data_1.ActivityData.findByPk(Number(raw))
+            : await activity_data_1.ActivityData.findBySlug(raw);
         if (!existing)
             throw Object.assign(new Error('Activity not found'), { status: 404 });
         const id = existing.id;
@@ -78,10 +108,10 @@ exports.ActivityService = {
         return { ...updated.toJSON(), tarifs_disponibles: computeTarifsDisponibles(updated) };
     },
     async softDelete(idOrSlug) {
-        const isSlug = isNaN(Number(idOrSlug));
-        const activity = isSlug
-            ? await activity_data_1.ActivityData.findBySlug(String(idOrSlug))
-            : await activity_data_1.ActivityData.findByPk(Number(idOrSlug));
+        const raw = String(idOrSlug).trim();
+        const activity = isNumericIdParam(raw)
+            ? await activity_data_1.ActivityData.findByPk(Number(raw))
+            : await activity_data_1.ActivityData.findBySlug(raw);
         if (!activity)
             throw Object.assign(new Error('Activity not found'), { status: 404 });
         const id = activity.id;

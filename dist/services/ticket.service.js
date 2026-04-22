@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TicketService = void 0;
 const ticket_data_1 = require("../data/ticket.data");
 const accesslog_data_1 = require("../data/accesslog.data");
+const transaction_data_1 = require("../data/transaction.data");
 exports.TicketService = {
     async list(query) {
         return ticket_data_1.TicketData.findAll({
@@ -25,6 +26,17 @@ exports.TicketService = {
         }
         await ticket_data_1.TicketData.update(id, { status: 'VENDU' });
         const updated = await ticket_data_1.TicketData.findByPk(id);
+        // Générer la transaction REVENU
+        const activityNom = updated?.batch?.activity?.nom ?? 'Ticket';
+        const prix = Number(updated?.prix_unitaire ?? 0);
+        const codeTicket = updated?.code_ticket ?? String(id);
+        await transaction_data_1.TransactionData.create({
+            type: 'REVENU',
+            libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
+            montant: prix,
+            id_membre: null,
+            date: new Date(),
+        });
         return updated;
     },
     async validate(code, controllerId) {

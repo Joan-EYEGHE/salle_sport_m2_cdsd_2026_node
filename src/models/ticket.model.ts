@@ -1,4 +1,6 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Sequelize } from "sequelize";
+import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, NonAttribute, Sequelize } from "sequelize";
+import type { Activity } from "./activity.model";
+import type { Batch } from "./batch.model";
 
 export type TicketStatus = 'DISPONIBLE' | 'VENDU' | 'UTILISE' | 'EXPIRE';
 
@@ -13,6 +15,9 @@ export class Ticket extends Model<InferAttributes<Ticket>, InferCreationAttribut
     declare active: CreationOptional<boolean>;
     declare readonly createdAt?: CreationOptional<Date>;
     declare readonly updatedAt?: CreationOptional<Date>;
+
+    /** Présent quand chargé via `include` (Batch + Activity). */
+    declare batch?: NonAttribute<Batch & { activity?: Activity }>;
 }
 
 export const initTicketModel = (sequelize: Sequelize) => {

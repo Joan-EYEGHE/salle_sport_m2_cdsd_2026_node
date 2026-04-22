@@ -4,9 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initActivityModel = exports.Activity = void 0;
+exports.generateActivitySlug = generateActivitySlug;
 const sequelize_1 = require("sequelize");
 const slugify_1 = __importDefault(require("slugify"));
 const crypto_1 = require("crypto");
+/** Exporté pour backfill côté service (lignes sans slug) — même logique que les hooks. */
 function generateActivitySlug(nom) {
     const base = (0, slugify_1.default)(nom, { lower: true, strict: true });
     const suffix = (0, crypto_1.randomUUID)().replace(/-/g, '').substring(0, 4);

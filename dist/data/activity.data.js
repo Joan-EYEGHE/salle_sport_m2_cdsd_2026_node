@@ -10,12 +10,12 @@ exports.ActivityData = {
         return models_1.Activity.findByPk(id);
     },
     findBySlug(slug) {
-        return models_1.Activity.findOne({ where: { slug } });
+        return models_1.Activity.findOne({ where: { slug: slug.trim() } });
     },
     create(values) {
         return models_1.Activity.create(values);
     },
     update(id, values) {
-        return models_1.Activity.update(values, { where: { id } });
+        return models_1.Activity.update(values, { where: { id }, individualHooks: true });
     },
 };

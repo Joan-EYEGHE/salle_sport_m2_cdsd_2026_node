@@ -1,5 +1,6 @@
 import { TicketData } from "../data/ticket.data";
 import { AccessLogData } from "../data/accesslog.data";
+import { TransactionData } from "../data/transaction.data";
 
 export const TicketService = {
     async list(query: { status?: string; batch_id?: string }) {
@@ -19,10 +20,27 @@ export const TicketService = {
         const ticket = await TicketData.findByPk(id);
         if (!ticket) throw Object.assign(new Error('Ticket not found'), { status: 404 });
         if (ticket.status !== 'DISPONIBLE') {
-            throw Object.assign(new Error(`Impossible de vendre un ticket au statut ${ticket.status}`), { status: 400 });
+            throw Object.assign(new Error(
+                `Impossible de vendre un ticket au statut ${ticket.status}`
+            ), { status: 400 });
         }
+
         await TicketData.update(id, { status: 'VENDU' });
         const updated = await TicketData.findByPk(id);
+
+        // Générer la transaction REVENU
+        const activityNom = updated?.batch?.activity?.nom ?? 'Ticket';
+        const prix = Number(updated?.prix_unitaire ?? 0);
+        const codeTicket = updated?.code_ticket ?? String(id);
+
+        await TransactionData.create({
+            type: 'REVENU',
+            libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
+            montant: prix,
+            id_membre: null,
+            date: new Date(),
+        });
+
         return updated;
     },
 
