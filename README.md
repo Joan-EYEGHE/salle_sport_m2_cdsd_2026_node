@@ -21,7 +21,7 @@
 1. `npm install`
 2. Copier la configuration d’environnement : `cp .env.example .env` (Windows PowerShell : `Copy-Item .env.example .env`) puis éditer `DB_PASS`, `JWT_SECRET`, `JWT_REFRESH_SECRET` au minimum.
 3. Migrations : `npm run db:migrate`
-4. Lancer l’API : `npm run dev` → `http://localhost:5000/api`
+4. Lancer l’API : `npm run dev` ou `npx tsx src/server.ts`  → `http://localhost:5000/api`
 
 - Au démarrage, le serveur exécute aussi `sequelize.sync()` (cf. `src/server.ts`) : en **production** on privilégie les seules **migrations**.
 - CORS : en dev, `cors()` accepte toutes les origines ; en prod, restreindre l’exposition réseau / une future config par variable d’environnement (placeholder dans `.env.example`).
