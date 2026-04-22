@@ -74,6 +74,11 @@ exports.TicketService = {
                 id_controller: controllerId,
                 date_scan: now,
             });
+            console.log('[validate DISPONIBLE] retour:', JSON.stringify({
+                valid: false,
+                reason: 'Ticket non vendu — ce ticket doit être acheté avant d\'être utilisé',
+                ticket_info: 'omis',
+            }));
             return {
                 valid: false,
                 reason: 'Ticket non vendu — ce ticket doit être acheté avant d\'être utilisé',

@@ -72,12 +72,8 @@ exports.MemberController = {
     },
     async remove(req, res, next) {
         try {
-            const id = Number(req.params.id);
-            if (!Number.isFinite(id)) {
-                res.status(400).json({ success: false, message: 'Invalid id' });
-                return;
-            }
-            await member_service_1.MemberService.softDelete(id);
+            const member = await member_service_1.MemberService.getById(req.params.id);
+            await member_service_1.MemberService.softDelete(member.id);
             res.json({ success: true, message: 'Supprimé avec succès' });
         }
         catch (error) {
