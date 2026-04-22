@@ -1,3 +1,4 @@
+import { sequelize } from "../config/database";
 import { TicketData } from "../data/ticket.data";
 import { AccessLogData } from "../data/accesslog.data";
 import { TransactionData } from "../data/transaction.data";
@@ -25,17 +26,26 @@ export const TicketService = {
             ), { status: 400 });
         }
 
-        await TicketData.update(id, { status: 'VENDU' });
-        const updated = await TicketData.findByPk(id);
+        return sequelize.transaction(async (t) => {
+            const row = await TicketData.findByPk(id, t);
+            if (!row) throw Object.assign(new Error('Ticket not found'), { status: 404 });
+            if (row.status !== 'DISPONIBLE') {
+                throw Object.assign(new Error(
+                    `Impossible de vendre un ticket au statut ${row.status}`
+                ), { status: 400 });
+            }
 
-        const raw = updated as any;
-        const batch = raw?.batch ?? raw?.Batch;
-        const activity = batch?.activity ?? batch?.Activity;
-        const activityNom = activity?.nom ?? 'Ticket';
-        const prix = Number(raw?.prix_unitaire ?? batch?.prix_unitaire_applique ?? 0);
-        const codeTicket = updated?.code_ticket ?? String(id);
+            await TicketData.update(id, { status: 'VENDU' }, t);
+            const updated = await TicketData.findByPk(id, t);
+            if (!updated) throw Object.assign(new Error('Ticket not found'), { status: 404 });
 
-        try {
+            const raw = updated as any;
+            const batch = raw?.batch ?? raw?.Batch;
+            const activity = batch?.activity ?? batch?.Activity;
+            const activityNom = activity?.nom ?? 'Ticket';
+            const prix = Number(raw?.prix_unitaire ?? batch?.prix_unitaire_applique ?? 0);
+            const codeTicket = updated?.code_ticket ?? String(id);
+
             await TransactionData.create({
                 type: 'REVENU',
                 libelle: `Vente ticket ${codeTicket} — ${activityNom}`,
@@ -43,12 +53,10 @@ export const TicketService = {
                 id_membre: null,
                 date: new Date(),
                 methode_paiement: 'CASH',
-            });
-        } catch {
-            // Ne bloque pas la vente
-        }
+            }, t);
 
-        return updated;
+            return updated;
+        });
     },
 
     async validate(code: string, controllerId: number) {

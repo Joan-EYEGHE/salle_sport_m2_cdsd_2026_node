@@ -16,6 +16,26 @@
 
 ---
 
+## Démarrage rapide (remise M2 / correcteur)
+
+1. `npm install`
+2. Copier la configuration d’environnement : `cp .env.example .env` (Windows PowerShell : `Copy-Item .env.example .env`) puis éditer `DB_PASS`, `JWT_SECRET`, `JWT_REFRESH_SECRET` au minimum.
+3. Migrations : `npm run db:migrate`
+4. Lancer l’API : `npm run dev` → `http://localhost:5000/api`
+
+- Au démarrage, le serveur exécute aussi `sequelize.sync()` (cf. `src/server.ts`) : en **production** on privilégie les seules **migrations**.
+- CORS : en dev, `cors()` accepte toutes les origines ; en prod, restreindre l’exposition réseau / une future config par variable d’environnement (placeholder dans `.env.example`).
+
+| Rôle | Email (seed) | Mot de passe |
+| --- | --- | --- |
+| Admin | `admin@gymflow.com` | `admin1234` |
+| Caissier | `cashier@gymflow.com` | `cashier1234` |
+| Contrôleur | `controller@gymflow.com` | `controller1234` |
+
+L’exemple d’environnement est dans **`.env.example`**. La suite du document (stack, endpoints) reste valable.
+
+---
+
 ## ✨ Accroche
 
 GymFlow Backend fournit une **API robuste et structurée** pour alimenter plusieurs frontends (Vue/React) avec une **authentification JWT** et une **gestion par rôles** (`ADMIN`, `CASHIER`, `CONTROLLER`).
@@ -123,17 +143,19 @@ Créer un `.env` à la racine :
 | `DB_USER` | `root` | Utilisateur DB |
 | `DB_PASS` | *(vide)* | Mot de passe DB |
 | `JWT_SECRET` | `supersecret...` | Secret JWT |
-| `JWT_EXPIRES_IN` | `1d` | Durée de validité |
+| `JWT_REFRESH_SECRET` | *(fourni)* | Secret refresh token |
+| `JWT_EXPIRES_IN` | `1d` | Durée access token |
+| `JWT_REFRESH_EXPIRES_IN` | `7d` | Durée refresh token |
 
 ---
 
 ## 🔐 Comptes de seed
 
-Créés au démarrage si aucun user n'existe :
+Créés au démarrage si aucun user n'existe (voir `src/scripts/seed.ts`) :
 
-- `admin@example.com` / `admin1234` — `ADMIN`
-- `cashier@example.com` / `cashier1234` — `CASHIER`
-- `controller@example.com` / `controller1234` — `CONTROLLER`
+- `admin@gymflow.com` / `admin1234` — `ADMIN`
+- `cashier@gymflow.com` / `cashier1234` — `CASHIER`
+- `controller@gymflow.com` / `controller1234` — `CONTROLLER`
 
 ---
 

@@ -15,11 +15,12 @@ export const TicketData = {
         });
     },
 
-    findByPk(id: number) {
+    findByPk(id: number, t?: SequelizeTransaction) {
         return Ticket.findByPk(id, {
             include: [
                 { model: Batch, include: [{ model: Activity, attributes: ['id', 'nom'] }] },
             ],
+            transaction: t,
         });
     },
 
